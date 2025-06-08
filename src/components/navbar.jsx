@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
+import { UserAvatar } from '@/components/user-avatar'
 import { 
   Moon, 
   Sun, 
@@ -14,7 +15,8 @@ import {
   Plus,
   Home,
   Menu,
-  X
+  X,
+  Shield
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -93,7 +95,7 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2 hover:bg-primary/10 transition-all duration-200">
-                    <User size={16} />
+                    <UserAvatar user={session.user} size="sm" />
                     <span className="font-medium">{session.user.username}</span>
                     <span className="aura-points text-primary">({session.user.auraPoints})</span>
                   </Button>
@@ -114,7 +116,7 @@ export function Navbar() {
                   {session.user.isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
+                        <Shield className="mr-2 h-4 w-4" />
                         Admin
                       </Link>
                     </DropdownMenuItem>
@@ -191,6 +193,7 @@ export function Navbar() {
 
                 {session ? (
                   <div className="flex items-center space-x-2">
+                    <UserAvatar user={session.user} size="xs" />
                     <span className="text-sm font-medium">{session.user.username}</span>
                     <Button 
                       variant="ghost" 

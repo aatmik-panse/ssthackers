@@ -14,6 +14,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit')) || 20
     const page = parseInt(searchParams.get('page')) || 1
     const userId = searchParams.get('userId')
+    const authorId = searchParams.get('author')
     const timeFilter = searchParams.get('time') // for top posts: day, week, month, all
     
     const skip = (page - 1) * limit
@@ -22,9 +23,11 @@ export async function GET(request) {
     let query = { isDeleted: false }
     let sort = {}
 
-    // Add user filter if specified
+    // Add user/author filter if specified
     if (userId) {
       query.author = userId
+    } else if (authorId) {
+      query.author = authorId
     }
 
     // Handle different feed types

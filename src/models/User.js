@@ -23,6 +23,22 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  bio: {
+    type: String,
+    default: null,
+    maxlength: 500
+  },
+  location: {
+    type: String,
+    default: null,
+    maxlength: 100
+  },
+  socialLinks: {
+    github: { type: String, default: null },
+    linkedin: { type: String, default: null },
+    twitter: { type: String, default: null },
+    website: { type: String, default: null }
+  },
   auraPoints: {
     type: Number,
     default: 0,

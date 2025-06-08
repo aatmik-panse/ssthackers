@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 
 export function Navbar() {
   const { data: session } = useSession()
@@ -38,15 +39,17 @@ export function Navbar() {
   ]
 
   return (
-    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="bg-primary text-primary-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="bg-primary text-primary-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm transition-transform group-hover:scale-110">
               S
             </div>
-            <span className="font-bold text-xl">SST Hackers</span>
+            <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              SST Hackers
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -55,10 +58,13 @@ export function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className="flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-colors"
+                className="group flex items-center space-x-1 text-muted-foreground hover:text-foreground transition-all duration-200"
               >
-                <Icon size={16} />
-                <span>{label}</span>
+                <Icon size={16} className="transition-transform group-hover:scale-110" />
+                <span className="relative">
+                  {label}
+                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-200 group-hover:w-full"></span>
+                </span>
               </Link>
             ))}
           </div>
@@ -66,8 +72,8 @@ export function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             {session && (
-              <Button asChild size="sm">
-                <Link href="/submit">
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 transition-all duration-200">
+                <Link href="/submit" className="flex items-center">
                   <Plus size={16} className="mr-1" />
                   Submit
                 </Link>
@@ -79,6 +85,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="hover:bg-primary/10 transition-all duration-200"
             >
               <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -89,42 +96,45 @@ export function Navbar() {
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
+                  <Button variant="ghost" className="flex items-center space-x-2 hover:bg-primary/10 transition-all duration-200">
                     <User size={16} />
                     <span className="font-medium">{session.user.username}</span>
-                    <span className="aura-points">({session.user.auraPoints})</span>
+                    <span className="aura-points text-primary">({session.user.auraPoints})</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
-                    <Link href={`/user/${session.user.username}`}>
+                    <Link href={`/user/${session.user.username}`} className="flex items-center">
                       <User className="mr-2 h-4 w-4" />
                       Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings">
+                    <Link href="/settings" className="flex items-center">
                       <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </Link>
                   </DropdownMenuItem>
                   {session.user.isAdmin && (
                     <DropdownMenuItem asChild>
-                      <Link href="/admin">
+                      <Link href="/admin" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />
                         Admin
                       </Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()}>
+                  <DropdownMenuItem onClick={() => signOut()} className="text-red-500 focus:text-red-500">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => signIn()}>
+              <Button 
+                onClick={() => signIn()}
+                className="bg-primary hover:bg-primary/90 transition-all duration-200"
+              >
                 Sign In
               </Button>
             )}
@@ -136,6 +146,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="hover:bg-primary/10 transition-all duration-200"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </Button>
@@ -150,10 +161,10 @@ export function Navbar() {
                 <Link
                   key={href}
                   href={href}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-all duration-200"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Icon size={16} />
+                  <Icon size={16} className="transition-transform hover:scale-110" />
                   <span>{label}</span>
                 </Link>
               ))}
@@ -161,7 +172,7 @@ export function Navbar() {
               {session && (
                 <Link
                   href="/submit"
-                  className="flex items-center space-x-2 text-primary font-medium"
+                  className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus size={16} />
@@ -174,6 +185,7 @@ export function Navbar() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="hover:bg-primary/10 transition-all duration-200"
                 >
                   {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                   <span className="ml-2">
@@ -184,12 +196,21 @@ export function Navbar() {
                 {session ? (
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">{session.user.username}</span>
-                    <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => signOut()}
+                      className="hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
+                    >
                       <LogOut size={16} />
                     </Button>
                   </div>
                 ) : (
-                  <Button size="sm" onClick={() => signIn()}>
+                  <Button 
+                    size="sm" 
+                    onClick={() => signIn()}
+                    className="bg-primary hover:bg-primary/90 transition-all duration-200"
+                  >
                     Sign In
                   </Button>
                 )}

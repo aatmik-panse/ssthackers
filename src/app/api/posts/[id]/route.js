@@ -7,7 +7,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    // Properly await params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Post ID is required' },

@@ -3,10 +3,11 @@ import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
 import Comment from '@/models/Comment'
 import Post from '@/models/Post'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Comment ID is required' },
@@ -38,7 +39,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -46,7 +47,7 @@ export async function PATCH(request, { params }) {
       )
     }
     
-    const { id } = params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Comment ID is required' },
@@ -112,7 +113,7 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -120,7 +121,7 @@ export async function DELETE(request, { params }) {
       )
     }
     
-    const { id } = params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Comment ID is required' },

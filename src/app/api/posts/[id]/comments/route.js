@@ -51,7 +51,7 @@ function buildCommentTree(comments, parentId = null) {
 
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Post ID is required' },
@@ -116,7 +116,7 @@ export async function POST(request, { params }) {
       )
     }
     
-    const { id } = params
+    const { id } = await params
     if (!id) {
       return NextResponse.json(
         { error: 'Post ID is required' },

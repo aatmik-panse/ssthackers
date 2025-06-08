@@ -96,7 +96,7 @@ export function PostCard({ post, rank, showBody = false }) {
                     </a>
                   ) : (
                     <Link 
-                      href={`/post/${post._id}`}
+                      href={`/posts/${post._id}`}
                       className="hover:text-primary transition-colors"
                     >
                       {post.title}

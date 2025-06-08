@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
-import Post from '@/models/Post'
+import Comment from '@/models/Comment'
 import Vote from '@/models/Vote'
 import User from '@/models/User'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
@@ -17,10 +17,10 @@ export async function POST(request, { params }) {
     }
     
     // Properly await params
-    const { id: postId } = await params
-    if (!postId) {
+    const { id: commentId } = await params
+    if (!commentId) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Comment ID is required' },
         { status: 400 }
       )
     }
@@ -38,11 +38,11 @@ export async function POST(request, { params }) {
       )
     }
     
-    // Check if post exists
-    const post = await Post.findById(postId).populate('author', 'auraPoints')
-    if (!post) {
+    // Check if comment exists
+    const comment = await Comment.findById(commentId).populate('author', 'auraPoints')
+    if (!comment) {
       return NextResponse.json(
-        { error: 'Post not found' },
+        { error: 'Comment not found' },
         { status: 404 }
       )
     }
@@ -50,7 +50,7 @@ export async function POST(request, { params }) {
     // Check for existing vote
     const existingVote = await Vote.findOne({
       user: session.user.id,
-      post: postId
+      comment: commentId
     })
     
     let voteChange = 0
@@ -61,7 +61,7 @@ export async function POST(request, { params }) {
       // Remove existing vote
       await Vote.findByIdAndDelete(existingVote._id)
       voteChange = existingVote.type === 'upvote' ? -1 : 1
-      auraChange = existingVote.type === 'upvote' ? -5 : 0
+      auraChange = existingVote.type === 'upvote' ? -2 : 0
     } else if (type === 'upvote' || type === 'downvote') {
       if (existingVote) {
         // Update existing vote
@@ -70,27 +70,27 @@ export async function POST(request, { params }) {
           await existingVote.save()
           
           voteChange = type === 'upvote' ? 2 : -2 // From down to up or vice versa
-          auraChange = type === 'upvote' ? 5 : -5
+          auraChange = type === 'upvote' ? 2 : -2
           newUserVote = type
         }
       } else {
         // Create new vote
         const newVote = new Vote({
           user: session.user.id,
-          post: postId,
+          comment: commentId,
           type
         })
         await newVote.save()
         
         voteChange = type === 'upvote' ? 1 : -1
-        auraChange = type === 'upvote' ? 5 : 0
+        auraChange = type === 'upvote' ? 2 : 0
         newUserVote = type
       }
     }
 
-    // Update post vote count
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
+    // Update comment vote count
+    const updatedComment = await Comment.findByIdAndUpdate(
+      commentId,
       { $inc: { votes: voteChange } },
       { new: true }
     )
@@ -98,29 +98,29 @@ export async function POST(request, { params }) {
     // Update author's aura points
     if (auraChange !== 0) {
       await User.findByIdAndUpdate(
-        post.author._id,
-        { $inc: { auraPoints: Math.max(-post.author.auraPoints, auraChange) } } // Prevent negative aura
+        comment.author._id,
+        { $inc: { auraPoints: Math.max(-comment.author.auraPoints, auraChange) } } // Prevent negative aura
       )
     }
 
     return NextResponse.json({
-      votes: updatedPost.votes,
+      votes: updatedComment.votes,
       userVote: newUserVote
     })
 
   } catch (error) {
-    console.error('Error voting on post:', error)
+    console.error('Error voting on comment:', error)
     
     // Handle duplicate vote error
     if (error.code === 11000) {
       return NextResponse.json(
-        { error: 'You have already voted on this post' },
+        { error: 'You have already voted on this comment' },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Failed to vote on post' },
+      { error: 'Failed to vote on comment' },
       { status: 500 }
     )
   }

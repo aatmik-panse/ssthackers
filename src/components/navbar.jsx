@@ -12,9 +12,7 @@ import {
   LogOut, 
   Settings, 
   Plus,
-  Flame,
-  Clock,
-  TrendingUp,
+  Home,
   Menu,
   X
 } from 'lucide-react'
@@ -32,11 +30,9 @@ export function Navbar() {
   const { theme, setTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const navLinks = [
-    { href: '/', label: 'Hot', icon: Flame },
-    { href: '/new', label: 'New', icon: Clock },
-    { href: '/top', label: 'Top', icon: TrendingUp },
-  ]
+  // const navLinks = [
+  //   { href: '/', label: 'Home', icon: Home },
+  // ]
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -54,7 +50,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map(({ href, label, icon: Icon }) => (
+            {/* {navLinks.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
@@ -66,7 +62,7 @@ export function Navbar() {
                   <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </span>
               </Link>
-            ))}
+            ))} */}
           </div>
 
           {/* Desktop Actions */}

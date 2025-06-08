@@ -25,15 +25,14 @@ export default function RootLayout({ children }) {
             disableTransitionOnChange
           >
             <div className="relative min-h-screen bg-background">
-              {/* Background Effects */}
-              <div className="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-slate-950">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
-                <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary opacity-20 blur-[100px]"></div>
+              {/* Simple clean background */}
+              <div className="fixed inset-0 -z-10 h-full w-full bg-background dark:bg-background">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#0000000A_1px,transparent_1px),linear-gradient(to_bottom,#0000000A_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#FFFFFF15_1px,transparent_1px),linear-gradient(to_bottom,#FFFFFF15_1px,transparent_1px)] bg-[size:32px_32px]"></div>
               </div>
               
               <Navbar />
-              <main className="container mx-auto px-4 py-8">
-                <div className="mx-auto max-w-5xl">
+              <main className="container mx-auto px-4 py-6">
+                <div className="mx-auto max-w-4xl">
                   {children}
                 </div>
               </main>

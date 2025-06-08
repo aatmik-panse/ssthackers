@@ -1,22 +1,64 @@
-import { Suspense } from 'react'
+"use client"
+
+import { Suspense, useState } from 'react'
 import { PostList } from '@/components/post-list'
 import { Sidebar } from '@/components/sidebar'
 import { PostListSkeleton } from '@/components/post-list-skeleton'
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Flame, Clock, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
+  const [feed, setFeed] = useState('hot')
+  
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Main Content */}
       <div className="lg:col-span-3">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Hot Posts</h1>
-          <p className="text-muted-foreground">
-            Latest trending discussions from the SST community
-          </p>
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">SST Hackers</h1>
+            <p className="text-muted-foreground">
+              Discussions from the SST community
+            </p>
+          </div>
+          
+          <div className="mt-4 md:mt-0">
+            <Select value={feed} onValueChange={setFeed}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hot" className="flex items-center">
+                  <div className="flex items-center">
+                    <Flame className="mr-2 h-4 w-4" />
+                    <span>Hot</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="new" className="flex items-center">
+                  <div className="flex items-center">
+                    <Clock className="mr-2 h-4 w-4" />
+                    <span>New</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="top" className="flex items-center">
+                  <div className="flex items-center">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    <span>Top</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <Suspense fallback={<PostListSkeleton />}>
-          <PostList feed="hot" />
+          <PostList feed={feed} />
         </Suspense>
       </div>
 

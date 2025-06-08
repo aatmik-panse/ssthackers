@@ -4,10 +4,11 @@ import connectDB from '@/lib/mongodb'
 import Post from '@/models/Post'
 import Vote from '@/models/Vote'
 import User from '@/models/User'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function POST(request, { params }) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },

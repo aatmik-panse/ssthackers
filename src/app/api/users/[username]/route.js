@@ -4,10 +4,12 @@ import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
 import Post from '@/models/Post'
 import Comment from '@/models/Comment'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function GET(request, { params }) {
   try {
-    const { username } = params
+    // Properly await params
+    const { username } = await params
     if (!username) {
       return NextResponse.json(
         { error: 'Username is required' },
@@ -56,7 +58,7 @@ export async function GET(request, { params }) {
     }
 
     // Check if the requesting user can see sensitive information
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user || (session.user.id !== user._id.toString() && !session.user.isAdmin)) {
       // Remove sensitive information for non-owners
       delete responseData.email
@@ -77,7 +79,7 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -85,7 +87,8 @@ export async function PATCH(request, { params }) {
       )
     }
 
-    const { username } = params
+    // Properly await params
+    const { username } = await params
     if (!username) {
       return NextResponse.json(
         { error: 'Username is required' },
@@ -119,7 +122,7 @@ export async function PATCH(request, { params }) {
     const updateData = await request.json()
     
     // Fields that are allowed to be updated
-    const allowedFields = ['name', 'image', 'bio', 'location', 'socialLinks']
+    const allowedFields = ['name', 'image', 'bio', 'location', 'socialLinks', 'username']
     
     // Create object with only allowed fields
     const sanitizedData = {}
@@ -127,6 +130,31 @@ export async function PATCH(request, { params }) {
       if (updateData[field] !== undefined) {
         sanitizedData[field] = updateData[field]
       }
+    }
+    
+    // Handle username change by updating the email
+    if (sanitizedData.username) {
+      // Extract domain from current email
+      const domain = user.email.split('@')[1]
+      
+      // Create new email with new username and same domain
+      sanitizedData.email = `${sanitizedData.username}@${domain}`
+      
+      // Check if the new email is already taken
+      const existingUser = await User.findOne({ 
+        email: sanitizedData.email,
+        _id: { $ne: user._id } // Exclude current user
+      })
+      
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'This username is already taken' },
+          { status: 400 }
+        )
+      }
+      
+      // Remove username from sanitized data as it's a virtual property
+      delete sanitizedData.username
     }
 
     // Validate social links
@@ -138,9 +166,9 @@ export async function PATCH(request, { params }) {
         if (sanitizedData.socialLinks[platform] !== undefined) {
           // Simple URL validation
           let url = sanitizedData.socialLinks[platform]
-          if (url && typeof url === 'string') {
+          if (url && typeof url === 'string' && url.trim()) {
             // Add https:// if missing and not empty
-            if (url.trim() && !url.match(/^https?:\/\//)) {
+            if (!url.match(/^https?:\/\//)) {
               url = `https://${url}`
             }
             validSocialLinks[platform] = url

@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SessionProvider } from '@/components/session-provider'
 import { Navbar } from '@/components/navbar'
 import { Toaster } from '@/components/ui/toaster'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,7 +15,9 @@ export const metadata = {
   keywords: ['SST', 'Scaler', 'community', 'tech', 'programming', 'discussions'],
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await getServerSession(authOptions)
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>

@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { VoteButtons } from './vote-buttons'
+import { UserAvatar } from './user-avatar'
 import { formatTimeAgo, extractDomain } from '@/lib/utils'
 import { 
   MessageCircle, 
@@ -162,8 +163,8 @@ export function PostCard({ post, rank, showBody = false }) {
 
             {/* Metadata */}
             <div className="flex items-center flex-wrap gap-4 text-sm text-muted-foreground mt-3 pt-3 border-t">
-              <span className="flex items-center gap-1">
-                <User className="h-3 w-3" />
+              <span className="flex items-center gap-1.5">
+                <UserAvatar user={post.author} size="xs" />
                 <Link 
                   href={`/user/${post.author.username}`}
                   className="hover:text-foreground transition-colors font-medium"

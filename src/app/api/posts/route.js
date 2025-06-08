@@ -4,6 +4,7 @@ import connectDB from '@/lib/mongodb'
 import Post from '@/models/Post'
 import Vote from '@/models/Vote'
 import { calculateHotScore } from '@/lib/utils'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function GET(request) {
   try {
@@ -18,7 +19,7 @@ export async function GET(request) {
     const timeFilter = searchParams.get('time') // for top posts: day, week, month, all
     
     const skip = (page - 1) * limit
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
 
     let query = { isDeleted: false }
     let sort = {}
@@ -118,7 +119,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },

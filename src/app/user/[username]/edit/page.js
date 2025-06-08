@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { UserAvatar } from '@/components/user-avatar'
+import { AvatarSelector } from '@/components/avatar-selector'
 import { useToast } from '@/components/ui/use-toast'
 import {
   Github,
@@ -30,18 +31,21 @@ import Link from 'next/link'
 const profileFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
-  }),
-  image: z.string().url({ message: "Please enter a valid URL." }).optional().nullable(),
+  }).optional().nullable(),
+  username: z.string().min(3, {
+    message: "Username must be at least 3 characters.",
+  }).optional(),
+  image: z.string().optional().nullable(),
   bio: z.string().max(500, {
     message: "Bio must not be longer than 500 characters.",
   }).optional().nullable(),
   location: z.string().max(100, {
     message: "Location must not be longer than 100 characters.",
   }).optional().nullable(),
-  github: z.string().url({ message: "Please enter a valid URL." }).optional().nullable(),
-  linkedin: z.string().url({ message: "Please enter a valid URL." }).optional().nullable(),
-  twitter: z.string().url({ message: "Please enter a valid URL." }).optional().nullable(),
-  website: z.string().url({ message: "Please enter a valid URL." }).optional().nullable(),
+  github: z.string().optional().nullable(),
+  linkedin: z.string().optional().nullable(),
+  twitter: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
 })
 
 export default function EditProfilePage() {
@@ -59,6 +63,7 @@ export default function EditProfilePage() {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
+      username: "",
       image: "",
       bio: "",
       location: "",
@@ -86,6 +91,7 @@ export default function EditProfilePage() {
         // Set form default values
         form.reset({
           name: data.name || "",
+          username: data.username || "",
           image: data.image || "",
           bio: data.bio || "",
           location: data.location || "",
@@ -137,6 +143,7 @@ export default function EditProfilePage() {
       
       const updateData = {
         name: values.name,
+        username: values.username,
         image: values.image,
         bio: values.bio,
         location: values.location,
@@ -237,7 +244,7 @@ export default function EditProfilePage() {
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name</FormLabel>
+                          <FormLabel>Name (Optional)</FormLabel>
                           <FormControl>
                             <Input placeholder="Your name" {...field} />
                           </FormControl>
@@ -248,17 +255,39 @@ export default function EditProfilePage() {
                     
                     <FormField
                       control={form.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Username</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Your username" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Username will be used in your profile URL
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
                       name="image"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Profile Picture URL</FormLabel>
+                          <FormLabel>Profile Picture (Optional)</FormLabel>
                           <FormControl>
-                            <div className="flex">
-                              <Input placeholder="https://example.com/image.jpg" {...field} />
-                            </div>
+                            <AvatarSelector 
+                              value={field.value} 
+                              onChange={field.onChange}
+                              userData={{
+                                ...profile,
+                                name: form.watch("name") || profile?.name,
+                              }}
+                            />
                           </FormControl>
                           <FormDescription>
-                            Enter a URL for your profile picture
+                            Choose from our preset avatars or use a custom URL
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -270,7 +299,7 @@ export default function EditProfilePage() {
                       name="bio"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Bio</FormLabel>
+                          <FormLabel>Bio (Optional)</FormLabel>
                           <FormControl>
                             <Textarea 
                               placeholder="Tell us about yourself" 
@@ -291,7 +320,7 @@ export default function EditProfilePage() {
                       name="location"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Location</FormLabel>
+                          <FormLabel>Location (Optional)</FormLabel>
                           <FormControl>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground">
@@ -319,7 +348,7 @@ export default function EditProfilePage() {
                       name="github"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>GitHub</FormLabel>
+                          <FormLabel>GitHub (Optional)</FormLabel>
                           <FormControl>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground">
@@ -342,7 +371,7 @@ export default function EditProfilePage() {
                       name="linkedin"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>LinkedIn</FormLabel>
+                          <FormLabel>LinkedIn (Optional)</FormLabel>
                           <FormControl>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground">
@@ -365,7 +394,7 @@ export default function EditProfilePage() {
                       name="twitter"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Twitter</FormLabel>
+                          <FormLabel>Twitter (Optional)</FormLabel>
                           <FormControl>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground">
@@ -388,7 +417,7 @@ export default function EditProfilePage() {
                       name="website"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Personal Website</FormLabel>
+                          <FormLabel>Personal Website (Optional)</FormLabel>
                           <FormControl>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground">

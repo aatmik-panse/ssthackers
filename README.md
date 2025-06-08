@@ -12,12 +12,14 @@ A modern Hacker News-style community platform built specifically for SST student
 - **Nested Comments**: Unlimited depth comment threading
 - **Multiple Feeds**: Hot (time-decay algorithm), New (chronological), Top (by time period)
 - **Aura Points System**: Gamification with +5 aura for post upvotes, +1 for comment upvotes
+- **User Profiles**: Customizable profiles with avatars, bio, location, and social links
 
 ### UI/UX Features
 - **Responsive Design**: Mobile-first with desktop optimization
 - **Dark/Light Mode**: System preference detection with manual toggle
 - **Accessibility**: Keyboard navigation and ARIA labels
 - **Modern UI**: Clean interface using shadcn/ui components
+- **Avatar Selection**: Choose from preset avatars or use custom images
 
 ### Community Features
 - **Aura Leaderboard**: Top contributors ranked by aura points
@@ -350,6 +352,35 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Advanced analytics dashboard
 - [ ] Integration with SST systems
 - [ ] Mobile app (React Native)
+
+## 👤 User Profiles
+
+### Profile Features
+- **Custom Avatars**: Choose from preset avatars or use a custom URL
+- **Profile Information**: Name, bio, location, and social links
+- **Social Integration**: Link to GitHub, LinkedIn, Twitter, and personal website
+- **Activity Display**: View a user's posts and comments history
+- **Aura Points Display**: Showcase contribution level with aura points
+
+### Avatar System
+The platform includes a collection of preset avatars for users to choose from:
+- 8 unique preset avatars with different styles
+- Custom avatar URL option for personalization
+- Fallback to user initials when no avatar is selected
+- Color-coded avatars based on username for consistency
+
+### Profile Management
+Users can:
+- Edit their profile information at any time
+- Update their display name and avatar
+- Add a bio (limited to 500 characters)
+- Add their location
+- Connect social accounts with appropriate links
+
+### Profile Privacy
+- Email addresses are only visible to the user and admins
+- Usernames are derived from email addresses for consistency
+- Profile pages are public but certain information is restricted
 
 ---
 

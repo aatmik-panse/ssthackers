@@ -65,7 +65,7 @@ export function PostList({ feed = 'hot', limit = 20, userId = null }) {
 
   if (loading && posts.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="bg-muted rounded-lg h-32"></div>
@@ -87,7 +87,7 @@ export function PostList({ feed = 'hot', limit = 20, userId = null }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {posts.map((post, index) => (
         <PostCard 
           key={post._id} 

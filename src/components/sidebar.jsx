@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Crown, Users, MessageSquare, TrendingUp } from 'lucide-react'
+import { Crown, Users, MessageSquare, TrendingUp, ExternalLink, BookOpen, HelpCircle } from 'lucide-react'
 
 export function Sidebar() {
   const [leaderboard, setLeaderboard] = useState([])
@@ -39,44 +39,44 @@ export function Sidebar() {
   }, [])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-full">
       {/* Community Stats */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+      <Card className="overflow-hidden border-2">
+        <CardHeader className="pb-4 bg-primary/5">
+          <CardTitle className="text-xl flex items-center gap-3">
+            <TrendingUp className="h-6 w-6 text-primary" />
             Community Stats
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4 pt-4 px-4">
           {loading ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-muted rounded h-4 animate-pulse"></div>
+                <div key={i} className="bg-muted rounded h-6 animate-pulse"></div>
               ))}
             </div>
           ) : stats ? (
             <>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                  <Users className="h-4 w-4" />
+              <div className="flex items-center justify-between p-3 rounded-md hover:bg-primary/5 transition-colors">
+                <span className="text-md font-medium flex items-center gap-3">
+                  <Users className="h-5 w-5 text-primary/80" />
                   Total Members
                 </span>
-                <span className="font-medium">{stats.totalUsers.toLocaleString()}</span>
+                <span className="font-semibold text-lg">{stats.totalUsers.toLocaleString()}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
+              <div className="flex items-center justify-between p-3 rounded-md hover:bg-primary/5 transition-colors">
+                <span className="text-md font-medium flex items-center gap-3">
+                  <MessageSquare className="h-5 w-5 text-primary/80" />
                   Posts Today
                 </span>
-                <span className="font-medium">{stats.postsToday}</span>
+                <span className="font-semibold text-lg">{stats.postsToday}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
+              <div className="flex items-center justify-between p-3 rounded-md hover:bg-primary/5 transition-colors">
+                <span className="text-md font-medium flex items-center gap-3">
+                  <MessageSquare className="h-5 w-5 text-primary/80" />
                   Comments Today
                 </span>
-                <span className="font-medium">{stats.commentsToday}</span>
+                <span className="font-semibold text-lg">{stats.commentsToday}</span>
               </div>
             </>
           ) : (
@@ -86,50 +86,51 @@ export function Sidebar() {
       </Card>
 
       {/* Aura Leaderboard */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Crown className="h-5 w-5 text-yellow-500" />
+      <Card className="overflow-hidden border-2">
+        <CardHeader className="pb-4 bg-yellow-500/10">
+          <CardTitle className="text-xl flex items-center gap-3">
+            <Crown className="h-6 w-6 text-yellow-500" />
             Aura Leaderboard
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4 px-4">
           {loading ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="bg-muted rounded w-6 h-4 animate-pulse"></div>
-                  <div className="bg-muted rounded w-20 h-4 animate-pulse flex-1"></div>
-                  <div className="bg-muted rounded w-12 h-4 animate-pulse"></div>
+                  <div className="bg-muted rounded w-10 h-6 animate-pulse"></div>
+                  <div className="bg-muted rounded w-32 h-6 animate-pulse flex-1"></div>
+                  <div className="bg-muted rounded w-16 h-6 animate-pulse"></div>
                 </div>
               ))}
             </div>
           ) : leaderboard.length > 0 ? (
             <div className="space-y-3">
               {leaderboard.map((user, index) => (
-                <div key={user._id} className="flex items-center gap-3">
-                  <span className={`text-sm font-mono w-6 ${
-                    index === 0 ? 'text-yellow-500' :
-                    index === 1 ? 'text-gray-400' :
-                    index === 2 ? 'text-amber-600' :
+                <div key={user._id} className="flex items-center gap-4 p-3 rounded-md hover:bg-primary/5 transition-colors">
+                  <span className={`text-base font-mono w-10 ${
+                    index === 0 ? 'text-yellow-500 font-bold' :
+                    index === 1 ? 'text-gray-400 font-bold' :
+                    index === 2 ? 'text-amber-600 font-bold' :
                     'text-muted-foreground'
                   }`}>
                     {index + 1}.
                   </span>
                   <Link 
                     href={`/user/${user.username}`}
-                    className="flex-1 text-sm hover:text-primary transition-colors truncate"
+                    className="flex-1 text-base hover:text-primary transition-colors truncate"
                   >
                     {user.username}
                   </Link>
-                  <span className="text-xs aura-points">
+                  <span className="text-base aura-points font-semibold">
                     {user.auraPoints}
                   </span>
                 </div>
               ))}
-              <Button asChild variant="outline" size="sm" className="w-full mt-4">
-                <Link href="/leaderboard">
-                  View Full Leaderboard
+              <Button asChild variant="outline" size="default" className="w-full mt-6">
+                <Link href="/leaderboard" className="flex items-center justify-center gap-2">
+                  <span>View Full Leaderboard</span>
+                  <ExternalLink className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -140,19 +141,31 @@ export function Sidebar() {
       </Card>
 
       {/* Quick Links */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Quick Links</CardTitle>
+      <Card className="overflow-hidden border-2">
+        <CardHeader className="pb-4 bg-primary/5">
+          <CardTitle className="text-xl flex items-center gap-3">
+            <ExternalLink className="h-6 w-6 text-primary" />
+            Quick Links
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <Button asChild variant="ghost" size="sm" className="w-full justify-start">
-            <Link href="/guidelines">Community Guidelines</Link>
+        <CardContent className="pt-4 px-4 space-y-3">
+          <Button asChild variant="ghost" size="default" className="w-full justify-start h-auto py-3 px-4">
+            <Link href="/guidelines" className="flex items-center gap-3">
+              <BookOpen className="h-5 w-5 text-primary/80" />
+              <span className="font-medium">Community Guidelines</span>
+            </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="w-full justify-start">
-            <Link href="/about">About SST Hackers</Link>
+          <Button asChild variant="ghost" size="default" className="w-full justify-start h-auto py-3 px-4">
+            <Link href="/about" className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-primary/80" />
+              <span className="font-medium">About SST Hackers</span>
+            </Link>
           </Button>
-          <Button asChild variant="ghost" size="sm" className="w-full justify-start">
-            <Link href="/contact">Contact & Support</Link>
+          <Button asChild variant="ghost" size="default" className="w-full justify-start h-auto py-3 px-4">
+            <Link href="/contact" className="flex items-center gap-3">
+              <HelpCircle className="h-5 w-5 text-primary/80" />
+              <span className="font-medium">Contact & Support</span>
+            </Link>
           </Button>
         </CardContent>
       </Card>

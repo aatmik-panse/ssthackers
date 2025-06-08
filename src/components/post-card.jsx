@@ -13,7 +13,8 @@ import {
   Flag, 
   MoreHorizontal,
   Edit,
-  Trash2
+  Trash2,
+  User
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -56,14 +57,14 @@ export function PostCard({ post, rank, showBody = false }) {
   const domain = post.url ? extractDomain(post.url) : null
 
   return (
-    <Card className="post-card">
-      <CardContent className="p-4">
-        <div className="flex gap-3">
+    <Card className="post-card overflow-hidden border-2 hover:border-primary/20 transition-all">
+      <CardContent className="p-0">
+        <div className="flex">
           {/* Rank & Vote Buttons */}
-          <div className="flex flex-col items-center space-y-1 pt-1">
+          <div className="flex flex-col items-center space-y-1 p-4 bg-primary/5">
             {rank && (
-              <span className="text-xs text-muted-foreground font-mono">
-                {rank}.
+              <span className="text-sm font-mono font-semibold mb-1">
+                {rank}
               </span>
             )}
             <VoteButtons
@@ -77,11 +78,11 @@ export function PostCard({ post, rank, showBody = false }) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 p-4">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 {/* Title */}
-                <h3 className="font-medium leading-tight mb-1">
+                <h3 className="text-lg font-semibold leading-tight mb-1">
                   {post.url ? (
                     <a 
                       href={post.url}
@@ -111,7 +112,7 @@ export function PostCard({ post, rank, showBody = false }) {
 
                 {/* Body preview for text posts */}
                 {post.body && !showBody && (
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                     {post.body.substring(0, 200)}
                     {post.body.length > 200 && '...'}
                   </p>
@@ -160,12 +161,12 @@ export function PostCard({ post, rank, showBody = false }) {
             </div>
 
             {/* Metadata */}
-            <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-              <span>
-                by{' '}
+            <div className="flex items-center flex-wrap gap-4 text-sm text-muted-foreground mt-3 pt-3 border-t">
+              <span className="flex items-center gap-1">
+                <User className="h-3 w-3" />
                 <Link 
                   href={`/user/${post.author.username}`}
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors font-medium"
                 >
                   {post.author.username}
                 </Link>
@@ -176,7 +177,7 @@ export function PostCard({ post, rank, showBody = false }) {
                 className="flex items-center gap-1 hover:text-foreground transition-colors"
               >
                 <MessageCircle className="h-3 w-3" />
-                {post.commentCount} comments
+                <span className="font-medium">{post.commentCount} comments</span>
               </Link>
             </div>
           </div>

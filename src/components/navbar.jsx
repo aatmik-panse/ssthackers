@@ -61,7 +61,7 @@ export function Navbar() {
                 priority
               />
             </div>
-            <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <span className="font-bold text-xl text-primary">
               SST Hackers
             </span>
           </Link>

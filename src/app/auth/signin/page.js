@@ -8,6 +8,49 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { z } from 'zod'
+import { cn } from '@/lib/utils'
+import { toast } from '@/components/ui/use-toast'
+
+// Form schema for sign in
+const signInSchema = z.object({
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .refine(
+      (email) => {
+        return isValidDomain(email)
+      },
+      {
+        message: 'Only @sst.scaler.com and @scaler.com email addresses are allowed',
+      }
+    ),
+  password: z.string().min(1, 'Password is required'),
+})
+
+// Form schema for sign up
+const signUpSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters long'),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters long')
+    .max(30, 'Username cannot exceed 30 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .refine(
+      (email) => {
+        return isValidDomain(email)
+      },
+      {
+        message: 'Only @sst.scaler.com and @scaler.com email addresses are allowed',
+      }
+    ),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters long'),
+})
 
 export default function SignInPage() {
   const router = useRouter()
@@ -22,10 +65,13 @@ export default function SignInPage() {
     email: '',
     password: '',
     name: '',
+    username: '',
     confirmPassword: ''
   })
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [signUpError, setSignUpError] = useState(null)
 
   useEffect(() => {
     // Check if user is already signed in
@@ -55,6 +101,22 @@ export default function SignInPage() {
         setFormError('Name is required')
         return false
       }
+      
+      if (!formData.username) {
+        setFormError('Username is required')
+        return false
+      }
+      
+      if (formData.username.length < 3 || formData.username.length > 30) {
+        setFormError('Username must be between 3 and 30 characters')
+        return false
+      }
+      
+      if (!formData.username.match(/^[a-zA-Z0-9_]+$/)) {
+        setFormError('Username can only contain letters, numbers, and underscores')
+        return false
+      }
+      
       if (formData.password !== formData.confirmPassword) {
         setFormError('Passwords do not match')
         return false
@@ -115,7 +177,8 @@ export default function SignInPage() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          name: formData.name
+          name: formData.name,
+          username: formData.username
         })
       })
 
@@ -126,7 +189,7 @@ export default function SignInPage() {
       } else {
         setSuccess('Account created successfully! Please sign in.')
         setMode('signin')
-        setFormData(prev => ({ ...prev, password: '', confirmPassword: '', name: '' }))
+        setFormData(prev => ({ ...prev, password: '', confirmPassword: '', name: '', username: '' }))
       }
     } catch (error) {
       setFormError('An error occurred during registration')
@@ -198,6 +261,21 @@ export default function SignInPage() {
                   />
                 </div>
               )}
+              
+              {mode === 'signup' && (
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Choose a username (letters, numbers, underscores)"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -205,7 +283,7 @@ export default function SignInPage() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="your.name@sst.scaler.com"
+                  placeholder="your.email@sst.scaler.com"
                   value={formData.email}
                   onChange={handleInputChange}
                   required
@@ -255,7 +333,11 @@ export default function SignInPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -267,38 +349,41 @@ export default function SignInPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <Button
-                variant="link"
-                onClick={() => {
-                  setMode(mode === 'signin' ? 'signup' : 'signin')
-                  setFormError('')
-                  setSuccess('')
-                }}
-                className="text-sm"
-              >
-                {mode === 'signin' 
-                  ? "Don't have an account? Create one" 
-                  : 'Already have an account? Sign in'
-                }
-              </Button>
-            </div>
-
-            <div className="mt-4 text-center">
-              <p className="text-xs text-muted-foreground">
-                By {mode === 'signin' ? 'signing in' : 'creating an account'}, you agree to our Terms of Service and Privacy Policy
-              </p>
+            <div className="mt-6 text-center text-sm">
+              {mode === 'signin' ? (
+                <p>
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('signup')
+                      setFormError('')
+                      setSuccess('')
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign up
+                  </button>
+                </p>
+              ) : (
+                <p>
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('signin')
+                      setFormError('')
+                      setSuccess('')
+                    }}
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
-
-        {mode === 'signup' && (
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have access? Contact your administrator for help.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )

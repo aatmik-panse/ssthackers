@@ -9,6 +9,15 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 30,
+    match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores']
+  },
   password: {
     type: String,
     required: true,
@@ -76,11 +85,7 @@ const UserSchema = new mongoose.Schema({
 // Indexes
 UserSchema.index({ auraPoints: -1 })
 UserSchema.index({ joinedAt: -1 })
-
-// Virtual for username from email
-UserSchema.virtual('username').get(function() {
-  return this.email.split('@')[0]
-})
+// Username is already indexed via the unique: true in the schema definition
 
 // Ensure virtual fields are serialized
 UserSchema.set('toJSON', { virtuals: true })
@@ -96,6 +101,15 @@ UserSchema.pre('save', async function(next) {
   } catch (error) {
     next(error)
   }
+})
+
+// Pre-save hook to ensure username is set
+UserSchema.pre('save', function(next) {
+  // If username is not set and email is available, extract username from email
+  if (!this.username && this.email) {
+    this.username = this.email.split('@')[0]
+  }
+  next()
 })
 
 // Method to compare password

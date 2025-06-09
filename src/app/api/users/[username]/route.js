@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
 
     // Find user by username
     const user = await User.findOne({
-      email: new RegExp(`^${username}@`, 'i')
+      username: username
     }).select('-password -__v')
 
     if (!user) {
@@ -100,7 +100,7 @@ export async function PATCH(request, { params }) {
 
     // Find user by username
     const user = await User.findOne({
-      email: new RegExp(`^${username}@`, 'i')
+      username: username
     })
 
     if (!user) {
@@ -122,7 +122,7 @@ export async function PATCH(request, { params }) {
     const updateData = await request.json()
     
     // Fields that are allowed to be updated
-    const allowedFields = ['name', 'image', 'bio', 'location', 'socialLinks', 'username']
+    const allowedFields = ['name', 'image', 'bio', 'location', 'socialLinks']
     
     // Create object with only allowed fields
     const sanitizedData = {}
@@ -132,28 +132,8 @@ export async function PATCH(request, { params }) {
       }
     }
     
-    // Handle username change by updating the email
+    // Remove username from update data if present (username cannot be changed)
     if (sanitizedData.username) {
-      // Extract domain from current email
-      const domain = user.email.split('@')[1]
-      
-      // Create new email with new username and same domain
-      sanitizedData.email = `${sanitizedData.username}@${domain}`
-      
-      // Check if the new email is already taken
-      const existingUser = await User.findOne({ 
-        email: sanitizedData.email,
-        _id: { $ne: user._id } // Exclude current user
-      })
-      
-      if (existingUser) {
-        return NextResponse.json(
-          { error: 'This username is already taken' },
-          { status: 400 }
-        )
-      }
-      
-      // Remove username from sanitized data as it's a virtual property
       delete sanitizedData.username
     }
 

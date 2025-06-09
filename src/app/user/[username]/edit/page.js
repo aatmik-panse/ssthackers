@@ -32,9 +32,6 @@ const profileFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }).optional().nullable(),
-  username: z.string().min(3, {
-    message: "Username must be at least 3 characters.",
-  }).optional(),
   image: z.string().optional().nullable(),
   bio: z.string().max(500, {
     message: "Bio must not be longer than 500 characters.",
@@ -63,7 +60,6 @@ export default function EditProfilePage() {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
-      username: "",
       image: "",
       bio: "",
       location: "",
@@ -91,7 +87,6 @@ export default function EditProfilePage() {
         // Set form default values
         form.reset({
           name: data.name || "",
-          username: data.username || "",
           image: data.image || "",
           bio: data.bio || "",
           location: data.location || "",
@@ -143,7 +138,6 @@ export default function EditProfilePage() {
       
       const updateData = {
         name: values.name,
-        username: values.username,
         image: values.image,
         bio: values.bio,
         location: values.location,
@@ -253,22 +247,22 @@ export default function EditProfilePage() {
                       )}
                     />
                     
-                    <FormField
-                      control={form.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Your username" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Username will be used in your profile URL
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <FormLabel>Username</FormLabel>
+                      <div className="flex items-center space-x-2">
+                        <Input 
+                          value={profile?.username || ""}
+                          disabled
+                          className="bg-muted"
+                        />
+                        <div className="text-xs text-muted-foreground">
+                          Cannot be changed
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Username is set during account creation and cannot be changed
+                      </p>
+                    </div>
                     
                     <FormField
                       control={form.control}

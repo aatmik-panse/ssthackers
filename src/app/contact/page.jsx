@@ -75,7 +75,7 @@ export default function ContactPage() {
       <div className="flex flex-col space-y-4">
         <h1 className="text-4xl font-bold">Contact Us</h1>
         <p className="text-xl text-muted-foreground">
-          Get in touch with the SST Hackers team
+          We're here to help you make the most of your SST Hackers experience
         </p>
       </div>
       
@@ -191,7 +191,7 @@ export default function ContactPage() {
                   <div>
                     <p className="font-medium">Report issues or violations</p>
                     <p className="text-muted-foreground mt-1">
-                      For reporting content that violates our community guidelines, please include links and details in your message.
+                      Help us maintain our vibrant community by reporting content that doesn't align with our values. Please include specific details to help us address concerns quickly.
                     </p>
                   </div>
                 </div>
@@ -211,21 +211,21 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-medium">How do I reset my password?</h3>
                   <p className="text-muted-foreground text-sm mt-1">
-                    You can reset your password from the sign-in page by clicking on "Forgot password".
+                    Easily reset your password through the sign-in page by clicking "Forgot password" and following the simple steps sent to your email.
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-medium">How are Aura points calculated?</h3>
                   <p className="text-muted-foreground text-sm mt-1">
-                    You earn Aura points when your posts and comments receive upvotes from other users.
+                    Your Aura grows when the community values your contributions-each upvote on your posts and comments adds to your influence in the SST ecosystem.
                   </p>
                 </div>
                 
                 <div>
                   <h3 className="font-medium">Can I delete my account?</h3>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Yes, you can request account deletion by contacting our support team.
+                    Yes, we respect your data choices. Simply reach out to our support team, and we'll guide you through the account deletion process.
                   </p>
                 </div>
               </div>

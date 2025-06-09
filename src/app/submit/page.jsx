@@ -128,8 +128,11 @@ export default function SubmitPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <Card className="border-2">
-        <CardHeader className="bg-primary/5 pb-4">
-          <CardTitle className="text-2xl">Submit a new post</CardTitle>
+        <CardHeader>
+          <CardTitle>Share Your Brilliance</CardTitle>
+          <p className="text-muted-foreground">
+            Inspire, educate, and connect with the SST community
+          </p>
         </CardHeader>
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit}>
@@ -200,11 +203,11 @@ export default function SubmitPage() {
               <div className="bg-primary/5 p-4 rounded-lg flex items-start gap-3 text-sm">
                 <AlertCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium">Please follow our community guidelines</p>
+                  <p className="font-medium">Spark meaningful conversations</p>
                   <p className="text-muted-foreground mt-1">
-                    Be respectful, avoid duplicate submissions, and provide value to the SST community.
+                    Share content that inspires, educates, or challenges the SST community.
                     <Link href="/guidelines" className="text-primary font-medium ml-1 hover:underline">
-                      Read our full guidelines
+                      Check our community guidelines
                     </Link>
                   </p>
                 </div>

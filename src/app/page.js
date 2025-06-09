@@ -24,7 +24,7 @@ export default function HomePage() {
           <div>
             <h1 className="text-3xl font-bold mb-2">SST Hackers</h1>
             <p className="text-muted-foreground text-lg">
-              Discussions from the SST community
+              Ignite your ideas with the brightest minds at SST
             </p>
           </div>
           

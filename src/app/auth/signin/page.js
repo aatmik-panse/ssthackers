@@ -212,16 +212,14 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
       <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <div className="mx-auto bg-primary text-primary-foreground w-16 h-16 rounded-lg flex items-center justify-center font-bold text-2xl mb-4">
-            S
-          </div>
-          <h2 className="text-3xl font-bold">Welcome to SST Hackers</h2>
-          <p className="mt-2 text-muted-foreground">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold tracking-tight">
+            {mode === 'signin' ? 'Welcome Back!' : 'Join the Community'}
+          </h1>
+          <p className="text-muted-foreground">
             {mode === 'signin' 
-              ? 'Sign in to your account' 
-              : 'Create your account'
-            }
+              ? 'Sign in to continue your journey with SST Hackers' 
+              : 'Create an account to connect with the brightest minds at SST'}
           </p>
         </div>
 

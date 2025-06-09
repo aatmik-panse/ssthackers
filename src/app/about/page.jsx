@@ -12,7 +12,7 @@ export default function AboutPage() {
       <div className="flex flex-col space-y-4">
         <h1 className="text-4xl font-bold">About SST Hackers</h1>
         <p className="text-xl text-muted-foreground">
-          A community platform for Scaler School of Technology students and alumni
+          Where innovation meets community - built by SST students, for SST students
         </p>
       </div>
 
@@ -25,15 +25,15 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="pt-6">
           <p className="mb-4">
-            SST Hackers is a Hacker News-style community platform built specifically for the Scaler School of Technology ecosystem. 
-            Our mission is to create a vibrant online space where students, alumni, and faculty can:
+            SST Hackers is more than just a platform - it's a launchpad for ideas and collaboration. 
+            We're on a mission to create a thriving digital ecosystem where the brilliant minds of Scaler School of Technology can:
           </p>
           <ul className="space-y-3 list-disc pl-6">
-            <li>Share valuable resources, articles, and projects</li>
-            <li>Discuss ideas and trends in technology and education</li>
-            <li>Ask questions and receive help from peers</li>
-            <li>Connect with others who share similar interests</li>
-            <li>Stay updated on important news and events</li>
+            <li>Discover and share game-changing resources, articles, and projects</li>
+            <li>Spark conversations that challenge and inspire</li>
+            <li>Get unstuck with help from peers who've been there</li>
+            <li>Build meaningful connections with like-minded innovators</li>
+            <li>Stay at the cutting edge of tech trends and campus happenings</li>
           </ul>
         </CardContent>
       </Card>
@@ -48,7 +48,7 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <p className="mb-4">
-              SST Hackers is built with modern web technologies to provide a fast, responsive, and accessible experience:
+              Built with cutting-edge tech for lightning-fast performance and seamless user experience:
             </p>
             <ul className="space-y-2 list-disc pl-6">
               <li><span className="font-medium">Frontend:</span> Next.js, React, Tailwind CSS</li>
@@ -58,7 +58,7 @@ export default function AboutPage() {
               <li><span className="font-medium">Deployment:</span> Vercel</li>
             </ul>
             <p className="mt-4 text-muted-foreground">
-              The platform is designed to be responsive and work well on all devices, from mobile phones to desktop computers.
+              Engineered to be responsive and intuitive across all devices, ensuring your ideas flow freely whether you're on mobile or desktop.
             </p>
           </CardContent>
         </Card>
@@ -76,21 +76,21 @@ export default function AboutPage() {
                 <MessageSquare className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Content Sharing & Discussion</p>
-                  <p className="text-muted-foreground text-sm">Share links or text posts and engage in threaded discussions</p>
+                  <p className="text-muted-foreground text-sm">Share insights that matter and dive into vibrant, threaded conversations</p>
                 </div>
               </li>
               <li className="flex gap-2">
                 <Users className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">User Profiles</p>
-                  <p className="text-muted-foreground text-sm">Personalized profiles to showcase your contributions and interests</p>
+                  <p className="text-muted-foreground text-sm">Showcase your unique contributions and build your digital presence in the community</p>
                 </div>
               </li>
               <li className="flex gap-2">
                 <Heart className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium">Aura Points System</p>
-                  <p className="text-muted-foreground text-sm">Earn reputation through valuable contributions to the community</p>
+                  <p className="text-muted-foreground text-sm">Watch your influence grow as you contribute value to the community</p>
                 </div>
               </li>
             </ul>
@@ -107,31 +107,31 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="pt-6">
           <p className="mb-4">
-            At SST Hackers, we believe in fostering a community that values:
+            At SST Hackers, we're building a community powered by these core values:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <h3 className="font-medium text-lg">Knowledge Sharing</h3>
               <p className="text-muted-foreground">
-                We encourage the free exchange of ideas, resources, and experiences to help everyone grow and learn.
+                We believe in the power of collective wisdom - when we share openly, everyone rises together.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-medium text-lg">Respect & Inclusivity</h3>
               <p className="text-muted-foreground">
-                We welcome diverse perspectives and treat all members with respect, regardless of background or experience level.
+                Every voice matters here. We celebrate diverse perspectives and create space for everyone to contribute.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-medium text-lg">Quality Content</h3>
               <p className="text-muted-foreground">
-                We value thoughtful, well-articulated content that adds value to the community.
+                We elevate ideas that spark meaningful conversation and drive our community forward.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-medium text-lg">Constructive Feedback</h3>
               <p className="text-muted-foreground">
-                We believe in providing feedback in a way that helps others improve and grow.
+                We believe in feedback that builds rather than breaks - helping each other level up is in our DNA.
               </p>
             </div>
           </div>
@@ -147,19 +147,19 @@ export default function AboutPage() {
         </CardHeader>
         <CardContent className="pt-6">
           <p className="mb-4">
-            There are many ways to contribute to the SST Hackers community:
+            Ready to make your mark? Here's how you can contribute to our thriving community:
           </p>
           <ul className="space-y-2 list-disc pl-6">
-            <li>Share interesting articles, resources, and projects</li>
-            <li>Participate in discussions and provide thoughtful responses</li>
-            <li>Help answer questions from fellow community members</li>
-            <li>Provide feedback to improve the platform</li>
-            <li>Report content that violates our community guidelines</li>
+            <li>Share mind-expanding articles and groundbreaking projects</li>
+            <li>Jump into discussions and offer your unique perspective</li>
+            <li>Be the hero someone needs by answering their burning questions</li>
+            <li>Help us evolve by providing thoughtful feedback</li>
+            <li>Uphold our community standards by reporting content that crosses the line</li>
           </ul>
           <div className="mt-6 p-4 bg-primary/5 rounded-lg">
-            <p className="font-medium">Have questions or suggestions?</p>
+            <p className="font-medium">Have ideas to make SST Hackers even better?</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Contact us at <span className="text-primary">dev.aatmik@gmail.com</span> or reach out to a moderator.
+              We're all ears! Reach out at <span className="text-primary">dev.aatmik@gmail.com</span> or connect with a moderator.
             </p>
           </div>
         </CardContent>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -13,12 +14,19 @@ export function VoteButtons({
   userVote, 
   onVoteUpdate,
   disabled = false,
-  size = 'default' // 'default' or 'sm'
+  size = 'default', // 'default' or 'sm'
+  redirectToSignIn = false
 }) {
   const { data: session } = useSession()
+  const router = useRouter()
   const [isVoting, setIsVoting] = useState(false)
 
   const handleVote = async (voteType) => {
+    if (disabled && redirectToSignIn) {
+      router.push('/auth/signin?callbackUrl=/')
+      return
+    }
+    
     if (!session || disabled || isVoting) return
 
     setIsVoting(true)
@@ -59,7 +67,7 @@ export function VoteButtons({
         variant="ghost"
         size={buttonSize}
         onClick={() => handleVote('upvote')}
-        disabled={disabled || isVoting}
+        disabled={disabled && !redirectToSignIn || isVoting}
         className={cn(
           "vote-button h-6 w-6 p-0",
           userVote === 'upvote' && "voted text-orange-500 hover:text-orange-600"
@@ -81,7 +89,7 @@ export function VoteButtons({
         variant="ghost"
         size={buttonSize}
         onClick={() => handleVote('downvote')}
-        disabled={disabled || isVoting}
+        disabled={disabled && !redirectToSignIn || isVoting}
         className={cn(
           "vote-button h-6 w-6 p-0",
           userVote === 'downvote' && "voted text-blue-500 hover:text-blue-600"

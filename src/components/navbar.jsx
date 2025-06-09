@@ -32,9 +32,9 @@ export function Navbar() {
   const { theme, setTheme } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // const navLinks = [
-  //   { href: '/', label: 'Home', icon: Home },
-  // ]
+  const navLinks = [
+    { href: '/', label: 'Home', icon: Home },
+  ]
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -69,14 +69,24 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            {session && (
-              <Button asChild size="sm" className="bg-primary hover:bg-primary/90 transition-all duration-200">
+            <Button 
+              asChild={!!session} 
+              size="sm" 
+              className="bg-primary hover:bg-primary/90 transition-all duration-200"
+              onClick={!session ? () => signIn(undefined, { callbackUrl: '/submit' }) : undefined}
+            >
+              {session ? (
                 <Link href="/submit" className="flex items-center">
                   <Plus size={16} className="mr-1" />
                   Submit
                 </Link>
-              </Button>
-            )}
+              ) : (
+                <span className="flex items-center">
+                  <Plus size={16} className="mr-1" />
+                  Submit
+                </span>
+              )}
+            </Button>
 
             {/* Theme Toggle */}
             <Button
@@ -155,28 +165,17 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <div className="space-y-4">
-              {navLinks.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-all duration-200"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Icon size={16} className="transition-transform hover:scale-110" />
-                  <span>{label}</span>
-                </Link>
-              ))}
               
-              {session && (
-                <Link
-                  href="/submit"
-                  className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Plus size={16} />
-                  <span>Submit</span>
-                </Link>
-              )}
+              <div 
+                className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  session ? window.location.href = '/submit' : signIn(undefined, { callbackUrl: '/submit' });
+                }}
+              >
+                <Plus size={16} />
+                <span>Submit</span>
+              </div>
 
               <div className="flex items-center justify-between pt-4 border-t">
                 <Button

@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
+import { VoteButtons } from '@/components/vote-buttons'
 import { formatTimeAgo, extractDomain } from '@/lib/utils'
 import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon } from 'lucide-react'
 
-export function PostList({ userId, limit = 10 }) {
+export function PostList({ feed = 'hot', userId, limit = 10 }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -22,6 +25,7 @@ export function PostList({ userId, limit = 10 }) {
         const queryParams = new URLSearchParams({
           page,
           limit,
+          sort: feed,
           ...(userId ? { author: userId } : {})
         })
         
@@ -50,10 +54,21 @@ export function PostList({ userId, limit = 10 }) {
     }
     
     fetchPosts()
-  }, [userId, page, limit])
+  }, [userId, page, limit, feed])
   
   const handleLoadMore = () => {
     setPage(prev => prev + 1)
+  }
+  
+  // Handle vote update
+  const handleVoteUpdate = (postId, newVotes, newUserVote) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post._id === postId 
+          ? { ...post, votes: newVotes, userVote: newUserVote } 
+          : post
+      )
+    )
   }
   
   if (loading && page === 1) {
@@ -101,7 +116,13 @@ export function PostList({ userId, limit = 10 }) {
   return (
     <div className="space-y-4">
       {posts.map(post => (
-        <PostCard key={post._id} post={post} />
+        <PostCard 
+          key={post._id} 
+          post={post} 
+          onVoteUpdate={(newVotes, newUserVote) => 
+            handleVoteUpdate(post._id, newVotes, newUserVote)
+          }
+        />
       ))}
       
       {loading && page > 1 && (
@@ -136,18 +157,33 @@ export function PostList({ userId, limit = 10 }) {
   )
 }
 
-function PostCard({ post }) {
+function PostCard({ post, onVoteUpdate }) {
+  const { data: session } = useSession()
+  const router = useRouter()
   const domain = post.url ? extractDomain(post.url) : null
   const voteCount = post.votes?.upvotes - post.votes?.downvotes || 0
   
+  const handleVoteClick = () => {
+    if (!session) {
+      router.push('/auth/signin?callbackUrl=/')
+    }
+  }
+  
   return (
-    <Card>
+    <Card className="border-2 hover:border-primary/20 transition-all">
       <CardContent className="p-0">
         <div className="flex">
           {/* Vote Sidebar */}
           <div className="w-16 bg-muted/20 flex flex-col items-center py-4 gap-1">
-            <div className="font-semibold text-xl">{voteCount}</div>
-            <div className="text-xs text-muted-foreground">points</div>
+            <VoteButtons
+              type="post"
+              itemId={post._id}
+              votes={voteCount}
+              userVote={post.userVote}
+              onVoteUpdate={onVoteUpdate}
+              disabled={!session}
+              redirectToSignIn={true}
+            />
           </div>
           
           {/* Content */}
@@ -182,7 +218,7 @@ function PostCard({ post }) {
                     href={`/user/${post.author?.username}`}
                     className="hover:text-foreground transition-colors"
                   >
-                    {post.author?.name}
+                    {post.author?.username || post.author?.name}
                   </Link>
                 </div>
                 

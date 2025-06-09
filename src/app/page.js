@@ -1,6 +1,8 @@
 "use client"
 
 import { Suspense, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { PostList } from '@/components/post-list'
 import { Sidebar } from '@/components/sidebar'
 import { PostListSkeleton } from '@/components/post-list-skeleton'
@@ -11,10 +13,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Flame, Clock, TrendingUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Flame, Clock, TrendingUp, Plus } from 'lucide-react'
 
 export default function HomePage() {
   const [feed, setFeed] = useState('hot')
+  const { data: session } = useSession()
+  const router = useRouter()
+  
+  const handleSubmitClick = () => {
+    if (!session) {
+      router.push('/auth/signin?callbackUrl=/submit')
+    } else {
+      router.push('/submit')
+    }
+  }
   
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -28,7 +41,15 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="mt-4 md:mt-0">
+          <div className="flex flex-col md:flex-row gap-4 items-center mt-4 md:mt-0">
+            {/* <Button 
+              onClick={handleSubmitClick} 
+              className="bg-primary hover:bg-primary/90 transition-all duration-200 w-full md:w-auto"
+            >
+              <Plus size={16} className="mr-1" />
+              Share Your Idea
+            </Button> */}
+            
             <Select value={feed} onValueChange={setFeed}>
               <SelectTrigger className="w-[180px] border-2">
                 <SelectValue placeholder="Sort by" />

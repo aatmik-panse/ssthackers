@@ -17,10 +17,6 @@ const nextConfig = {
     ],
   },
   
-  // Use server-side rendering for app router
-  experimental: {
-    serverActions: true,
-  },
 };
 
 export default nextConfig;

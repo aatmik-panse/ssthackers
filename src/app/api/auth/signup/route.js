@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
+import VerificationToken from '@/models/VerificationToken'
 import { isValidDomain } from '@/lib/utils'
+import { sendVerificationEmail } from '@/lib/email'
 
 export async function POST(request) {
   try {
@@ -85,21 +87,43 @@ export async function POST(request) {
       password,
       name: name.trim(),
       auraPoints: 0,
-      isEmailVerified: false // You can implement email verification later
+      isEmailVerified: false
     })
 
     await user.save()
 
+    // Create verification token
+    const verificationToken = VerificationToken.generateToken(user._id, 'email_verification')
+    await verificationToken.save()
+
+    // Generate verification URL
+    const siteUrl = process.env.SITE_URL || 'http://localhost:3000'
+    const verificationUrl = `${siteUrl}/auth/verify-email?token=${verificationToken.token}`
+
+    // Send verification email
+    let emailSent = false;
+    try {
+      await sendVerificationEmail(user.email, user.name, verificationUrl)
+      emailSent = true;
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError)
+      // We don't want to fail the signup if email sending fails
+      // but we should log it for monitoring
+    }
+
     // Return success (don't return password)
     return NextResponse.json(
       { 
-        message: 'Account created successfully',
+        message: emailSent 
+          ? 'Account created successfully. Please check your email to verify your account.'
+          : 'Account created successfully, but we could not send the verification email. Please visit the verification page to request a new one.',
         user: {
           id: user._id,
           email: user.email,
           name: user.name,
           username: user.username
-        }
+        },
+        emailSent
       },
       { status: 201 }
     )

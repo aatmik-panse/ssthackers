@@ -72,6 +72,9 @@ export default function SignInPage() {
   const [success, setSuccess] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [signUpError, setSignUpError] = useState(null)
+  const [isResendingVerification, setIsResendingVerification] = useState(false)
+  const [resendVerificationEmail, setResendVerificationEmail] = useState('')
+  const [resendVerificationStatus, setResendVerificationStatus] = useState('')
 
   useEffect(() => {
     // Check if user is already signed in
@@ -190,6 +193,22 @@ export default function SignInPage() {
         setSuccess('Account created successfully! Please sign in.')
         setMode('signin')
         setFormData(prev => ({ ...prev, password: '', confirmPassword: '', name: '', username: '' }))
+        
+        // Show toast notification about verification email
+        if (data.emailSent) {
+          toast({
+            title: "Verification Email Sent",
+            description: "Please check your inbox to verify your email address.",
+            duration: 6000,
+          })
+        } else {
+          toast({
+            title: "Account Created",
+            description: "Your account was created, but we couldn't send the verification email. Please try requesting a new one.",
+            variant: "destructive",
+            duration: 8000,
+          })
+        }
       }
     } catch (error) {
       setFormError('An error occurred during registration')
@@ -208,6 +227,44 @@ export default function SignInPage() {
         return formError || 'An error occurred. Please try again.'
     }
   }
+
+  // Check if the error is about email verification
+  const isEmailVerificationError = error === 'CredentialsSignin' && formError && formError.includes('verify your email');
+  
+  // Function to handle resending verification email
+  const handleResendVerification = async () => {
+    if (!resendVerificationEmail) {
+      setResendVerificationStatus('Please enter your email address');
+      return;
+    }
+    
+    setIsResendingVerification(true);
+    setResendVerificationStatus('');
+    
+    try {
+      // Create a temporary session for the resend API
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resendVerificationEmail }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        setResendVerificationStatus(data.error);
+      } else {
+        setResendVerificationStatus('Verification email sent! Please check your inbox.');
+      }
+    } catch (error) {
+      setResendVerificationStatus('Failed to resend verification email.');
+      console.error('Resend verification error:', error);
+    } finally {
+      setIsResendingVerification(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
@@ -233,9 +290,53 @@ export default function SignInPage() {
           <CardContent>
             <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp} className="space-y-4">
               {(error || formError) && (
-                <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{getErrorMessage(error)}</span>
+                <div className="flex flex-col gap-2 p-3 rounded-md bg-destructive/10 text-destructive">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">{getErrorMessage(error)}</span>
+                  </div>
+                  {isEmailVerificationError && (
+                    <div className="mt-2 space-y-3">
+                      <p className="text-sm">
+                        Enter your email to resend the verification link:
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          type="email"
+                          placeholder="your.email@sst.scaler.com"
+                          value={resendVerificationEmail}
+                          onChange={(e) => setResendVerificationEmail(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={isResendingVerification}
+                          size="sm"
+                        >
+                          {isResendingVerification ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            'Resend'
+                          )}
+                        </Button>
+                      </div>
+                      {resendVerificationStatus && (
+                        <p className={`text-xs ${resendVerificationStatus.includes('sent') ? 'text-green-500' : 'text-destructive'}`}>
+                          {resendVerificationStatus}
+                        </p>
+                      )}
+                      <div className="text-sm">
+                        <Button 
+                          variant="link" 
+                          className="p-0 h-auto text-primary" 
+                          onClick={() => router.push('/auth/verify-email')}
+                        >
+                          Go to verification page
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

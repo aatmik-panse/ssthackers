@@ -43,6 +43,11 @@ export const authOptions = {
           if (!isPasswordValid) {
             throw new Error('Invalid password')
           }
+          
+          // Check if email is verified
+          if (!user.isEmailVerified) {
+            throw new Error('Please verify your email address before signing in')
+          }
 
           // Return user object
           return {
@@ -52,7 +57,8 @@ export const authOptions = {
             image: user.image,
             auraPoints: user.auraPoints,
             isAdmin: user.isAdmin,
-            username: user.username
+            username: user.username,
+            isEmailVerified: user.isEmailVerified
           }
         } catch (error) {
           throw new Error(error.message)
@@ -67,6 +73,7 @@ export const authOptions = {
         session.user.auraPoints = token.auraPoints
         session.user.isAdmin = token.isAdmin
         session.user.username = token.username
+        session.user.isEmailVerified = token.isEmailVerified
       }
       return session
     },
@@ -77,6 +84,7 @@ export const authOptions = {
         token.auraPoints = user.auraPoints
         token.isAdmin = user.isAdmin
         token.username = user.username
+        token.isEmailVerified = user.isEmailVerified
       }
       return token
     }

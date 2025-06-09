@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
@@ -42,8 +43,23 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
-            <div className="bg-primary text-primary-foreground w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm transition-transform group-hover:scale-110">
-              S
+            <div className="relative w-8 h-8 transition-transform group-hover:scale-110">
+              <Image 
+                src="/images/1.jpg"
+                alt="SST Hackers Logo"
+                width={32}
+                height={32}
+                className="rounded-lg dark:hidden block object-cover"
+                priority
+              />
+              <Image 
+                src="/images/2.jpg"
+                alt="SST Hackers Logo"
+                width={32}
+                height={32}
+                className="rounded-lg dark:block hidden object-cover"
+                priority
+              />
             </div>
             <span className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               SST Hackers
@@ -164,55 +180,52 @@ export function Navbar() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t">
-            <div className="space-y-4">
-              
-              <div 
-                className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  session ? window.location.href = '/submit' : signIn(undefined, { callbackUrl: '/submit' });
-                }}
+            <div 
+              className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                session ? window.location.href = '/submit' : signIn(undefined, { callbackUrl: '/submit' });
+              }}
+            >
+              <Plus size={16} />
+              <span>Submit</span>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="hover:bg-primary/10 transition-all duration-200"
               >
-                <Plus size={16} />
-                <span>Submit</span>
-              </div>
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                <span className="ml-2">
+                  {theme === 'dark' ? 'Light' : 'Dark'} Mode
+                </span>
+              </Button>
 
-              <div className="flex items-center justify-between pt-4 border-t">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="hover:bg-primary/10 transition-all duration-200"
-                >
-                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-                  <span className="ml-2">
-                    {theme === 'dark' ? 'Light' : 'Dark'} Mode
-                  </span>
-                </Button>
-
-                {session ? (
-                  <div className="flex items-center space-x-2">
-                    <UserAvatar user={session.user} size="xs" />
-                    <span className="text-sm font-medium">{session.user.username}</span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => signOut()}
-                      className="hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
-                    >
-                      <LogOut size={16} />
-                    </Button>
-                  </div>
-                ) : (
+              {session ? (
+                <div className="flex items-center space-x-2">
+                  <UserAvatar user={session.user} size="xs" />
+                  <span className="text-sm font-medium">{session.user.username}</span>
                   <Button 
+                    variant="ghost" 
                     size="sm" 
-                    onClick={() => signIn()}
-                    className="bg-primary hover:bg-primary/90 transition-all duration-200"
+                    onClick={() => signOut()}
+                    className="hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
                   >
-                    Sign In
+                    <LogOut size={16} />
                   </Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <Button 
+                  size="sm" 
+                  onClick={() => signIn()}
+                  className="bg-primary hover:bg-primary/90 transition-all duration-200"
+                >
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         )}

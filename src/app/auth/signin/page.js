@@ -451,7 +451,7 @@ export default function SignInPage() {
             <div className="mt-6 text-center text-sm">
               {mode === 'signin' ? (
                 <p>
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <button
                     type="button"
                     onClick={() => {

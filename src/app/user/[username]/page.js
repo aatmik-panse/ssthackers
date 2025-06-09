@@ -86,7 +86,7 @@ export default function UserProfilePage() {
       <div className="text-center py-12 bg-destructive/10 rounded-lg border border-destructive/20">
         <h2 className="text-2xl font-bold mb-2">User Not Found</h2>
         <p className="text-muted-foreground mb-6">
-          The user profile you're looking for doesn't exist or isn't available.
+          The user profile you&apos;re looking for doesn&apos;t exist or isn&apos;t available.
         </p>
         <Button asChild>
           <Link href="/">Return Home</Link>

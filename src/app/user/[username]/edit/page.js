@@ -275,7 +275,7 @@ export default function EditProfilePage() {
                               <div>
                                 <p className="font-medium">Avatar customization coming soon!</p>
                                 <p className="text-sm text-muted-foreground">
-                                  We're working on adding avatar customization options.
+                                  We&apos;re working on adding avatar customization options.
                                 </p>
                               </div>
                             </div>

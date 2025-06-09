@@ -105,7 +105,12 @@ export default function UserProfilePage() {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Avatar */}
             <div className="flex flex-col items-center md:items-start gap-2">
-              <UserAvatar user={profile} size="xl" />
+              <div className="relative">
+                <UserAvatar user={profile} size="xl" />
+                <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                  Coming Soon
+                </div>
+              </div>
               
               {isOwnProfile && (
                 <Button asChild variant="outline" size="sm" className="mt-2">

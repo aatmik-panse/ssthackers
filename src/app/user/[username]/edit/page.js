@@ -12,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { UserAvatar } from '@/components/user-avatar'
-import { AvatarSelector } from '@/components/avatar-selector'
 import { useToast } from '@/components/ui/use-toast'
 import {
   Github,
@@ -271,17 +270,18 @@ export default function EditProfilePage() {
                         <FormItem>
                           <FormLabel>Profile Picture (Optional)</FormLabel>
                           <FormControl>
-                            <AvatarSelector 
-                              value={field.value} 
-                              onChange={field.onChange}
-                              userData={{
-                                ...profile,
-                                name: form.watch("name") || profile?.name,
-                              }}
-                            />
+                            <div className="p-4 border border-dashed rounded-md bg-muted/50 flex flex-col items-center justify-center space-y-2 text-center">
+                              <Camera className="h-8 w-8 text-muted-foreground" />
+                              <div>
+                                <p className="font-medium">Avatar customization coming soon!</p>
+                                <p className="text-sm text-muted-foreground">
+                                  We're working on adding avatar customization options.
+                                </p>
+                              </div>
+                            </div>
                           </FormControl>
                           <FormDescription>
-                            Choose from our preset avatars or use a custom URL
+                            Avatar customization will be available in a future update
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

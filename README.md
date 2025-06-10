@@ -382,6 +382,36 @@ Users can:
 - Usernames are derived from email addresses for consistency
 - Profile pages are public but certain information is restricted
 
+## Rate Limiting
+
+The application implements rate limiting for API endpoints to prevent abuse and ensure fair usage. Rate limits are applied differently based on the endpoint and whether the user is authenticated.
+
+### Rate Limit Configuration
+
+- **General API Endpoints**: 
+  - Anonymous users: 60 requests per minute
+  - Authenticated users: 300 requests per minute
+
+- **Authentication Endpoints**: 
+  - 5 requests per minute (same for all users to prevent brute force attacks)
+
+- **Voting Endpoints**:
+  - Anonymous users: 10 votes per minute
+  - Authenticated users: 30 votes per minute
+
+- **Post Submission**:
+  - Anonymous users: 2 submissions per 10 minutes
+  - Authenticated users: 10 submissions per 10 minutes
+
+### Response Headers
+
+Rate limit information is included in response headers:
+
+- `X-RateLimit-Limit`: Maximum number of requests allowed in the current time window
+- `X-RateLimit-Remaining`: Number of requests remaining in the current time window
+
+When a rate limit is exceeded, the API returns a 429 status code with a Retry-After header indicating when to retry.
+
 ---
 
 Built with ❤️ for the Scaler School of Technology community.

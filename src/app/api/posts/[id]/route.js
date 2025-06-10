@@ -68,4 +68,151 @@ export async function GET(request, { params }) {
       { status: 500 }
     )
   }
+}
+
+export async function PUT(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+    
+    const { id } = await params
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      )
+    }
+    
+    await connectDB()
+    
+    // Find post by ID
+    const post = await Post.findById(id).populate('author', '_id')
+    
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Check if user is author or admin
+    const isAuthor = session.user.id === post.author._id.toString()
+    const isAdmin = session.user.isAdmin
+    
+    if (!isAuthor && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Not authorized to edit this post' },
+        { status: 403 }
+      )
+    }
+    
+    // Get update data
+    const data = await request.json()
+    const { title, url, body } = data
+    
+    // Validate input
+    if (!title?.trim()) {
+      return NextResponse.json(
+        { error: 'Title is required' },
+        { status: 400 }
+      )
+    }
+    
+    if (url && body) {
+      return NextResponse.json(
+        { error: 'Post can have either URL or text body, not both' },
+        { status: 400 }
+      )
+    }
+    
+    if (!url && !body?.trim()) {
+      return NextResponse.json(
+        { error: 'Post must have either URL or text body' },
+        { status: 400 }
+      )
+    }
+    
+    // Update post
+    post.title = title.trim()
+    post.url = url?.trim() || null
+    post.body = body?.trim() || null
+    
+    await post.save()
+    
+    return NextResponse.json({
+      success: true,
+      post: await Post.findById(id).populate('author', 'username email auraPoints')
+    })
+    
+  } catch (error) {
+    console.error('Error updating post:', error)
+    return NextResponse.json(
+      { error: 'Failed to update post' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+    
+    const { id } = await params
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID is required' },
+        { status: 400 }
+      )
+    }
+    
+    await connectDB()
+    
+    // Find post by ID
+    const post = await Post.findById(id).populate('author', '_id')
+    
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      )
+    }
+    
+    // Check if user is author or admin
+    const isAuthor = session.user.id === post.author._id.toString()
+    const isAdmin = session.user.isAdmin
+    
+    if (!isAuthor && !isAdmin) {
+      return NextResponse.json(
+        { error: 'Not authorized to delete this post' },
+        { status: 403 }
+      )
+    }
+    
+    // Soft delete by setting isDeleted flag
+    post.isDeleted = true
+    await post.save()
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Post deleted successfully' 
+    })
+    
+  } catch (error) {
+    console.error('Error deleting post:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete post' },
+      { status: 500 }
+    )
+  }
 } 

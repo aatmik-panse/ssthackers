@@ -161,7 +161,7 @@ function PostCard({ post, onVoteUpdate }) {
   const { data: session } = useSession()
   const router = useRouter()
   const domain = post.url ? extractDomain(post.url) : null
-  const voteCount = post.votes?.upvotes - post.votes?.downvotes || 0
+  const voteCount = post.votes || 0
   
   const handleVoteClick = () => {
     if (!session) {

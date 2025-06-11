@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Forgot Password</h1>
           <p className="text-muted-foreground">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we&apos;ll send you a link to reset your password
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
           <CardHeader>
             <CardTitle>Reset Password</CardTitle>
             <CardDescription>
-              We'll email you a link to reset your password
+              We&apos;ll email you a link to reset your password
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -83,7 +83,7 @@ export default function ForgotPasswordPage() {
                 <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-md bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
                   <CheckCircle2 className="h-8 w-8" />
                   <p className="text-center mt-2">
-                    If an account exists with that email, we've sent you instructions to reset your password.
+                    If an account exists with that email, we&apos;ve sent you instructions to reset your password.
                   </p>
                 </div>
                 <div className="flex flex-col space-y-4">

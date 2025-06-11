@@ -5,6 +5,7 @@ import Post from '@/models/Post'
 import Comment from '@/models/Comment'
 import Vote from '@/models/Vote'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
+import User from '@/models/User'
 
 // Function to build a tree of comments
 function buildCommentTree(comments, parentId = null) {
@@ -162,6 +163,12 @@ export async function POST(request, { params }) {
     // Create and save the comment
     const comment = new Comment(commentData)
     await comment.save()
+    
+    // Award 1 aura point to the user for commenting
+    await User.findByIdAndUpdate(
+      session.user.id,
+      { $inc: { auraPoints: 1 } }
+    )
     
     // Populate author data
     await comment.populate('author', 'username name email image')

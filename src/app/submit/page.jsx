@@ -213,6 +213,18 @@ export default function SubmitPage() {
                 </div>
               </div>
               
+              {/* Aura Points Info */}
+              <div className="bg-secondary/10 p-4 rounded-lg flex items-start gap-3 text-sm">
+                <span className="text-xl font-bold text-primary shrink-0">+3</span>
+                <div>
+                  <p className="font-medium">Earn Aura Points</p>
+                  <p className="text-muted-foreground mt-1">
+                    Creating a post will earn you 3 aura points! Comments are worth 1 point each.
+                    Climb the leaderboard and increase your community influence.
+                  </p>
+                </div>
+              </div>
+              
               {/* Submit Button */}
               <div className="flex justify-end gap-3 pt-2">
                 <Button variant="outline" type="button" onClick={() => router.back()}>

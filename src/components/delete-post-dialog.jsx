@@ -40,6 +40,13 @@ export function DeletePostDialog({
           </p>
         </div>
         
+        <div className="p-4 mt-2 rounded-lg bg-secondary/10">
+          <p className="text-sm flex items-center gap-2">
+            <span className="font-bold text-destructive">-3</span>
+            <span>You will lose 3 aura points for deleting this post.</span>
+          </p>
+        </div>
+        
         <DialogFooter className="mt-4">
           <Button 
             variant="outline" 

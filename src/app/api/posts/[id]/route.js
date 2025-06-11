@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
 import Post from '@/models/Post'
 import Vote from '@/models/Vote'
+import User from '@/models/User'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function GET(request, { params }) {
@@ -199,9 +200,21 @@ export async function DELETE(request, { params }) {
       )
     }
     
+    // Check if post is already deleted
+    const wasAlreadyDeleted = post.isDeleted;
+    
     // Soft delete by setting isDeleted flag
-    post.isDeleted = true
-    await post.save()
+    post.isDeleted = true;
+    await post.save();
+    
+    // Deduct 3 aura points from the author if post is deleted
+    // Only deduct points if the post wasn't already deleted
+    if (!wasAlreadyDeleted) {
+      await User.findByIdAndUpdate(
+        post.author._id,
+        { $inc: { auraPoints: -3 } }
+      )
+    }
     
     return NextResponse.json({ 
       success: true,

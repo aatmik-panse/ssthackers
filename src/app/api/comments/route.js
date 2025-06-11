@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
 import Comment from '@/models/Comment'
 import Post from '@/models/Post'
+import User from '@/models/User'
 
 export async function POST(request) {
   try {
@@ -71,6 +72,12 @@ export async function POST(request) {
     
     // Increment comment count on the post
     await Post.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } })
+    
+    // Award 1 aura point to the user for commenting
+    await User.findByIdAndUpdate(
+      session.user.id,
+      { $inc: { auraPoints: 1 } }
+    )
     
     // Populate author data
     await comment.populate('author', 'username name email image')

@@ -262,29 +262,39 @@ export function CommentList({ postId }) {
             placeholder="What are your thoughts?"
             className="resize-none min-h-[100px]"
           />
-          <div className="flex justify-end gap-2">
-            {(replyingTo || editingComment) && (
-              <Button 
-                variant="ghost" 
-                onClick={handleCancel}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
+          <div className="flex justify-between items-center">
+            {/* Aura Points Info */}
+            {!editingComment && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="text-sm font-bold text-primary">+1</span>
+                <span>Earn 1 aura point for commenting</span>
+              </div>
             )}
-            <Button 
-              onClick={editingComment ? handleUpdateComment : handleSubmitComment}
-              disabled={!newComment.trim() || submitting}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {editingComment ? 'Updating...' : 'Submitting...'}
-                </>
-              ) : (
-                editingComment ? 'Update' : replyingTo ? 'Reply' : 'Comment'
+            
+            <div className="flex justify-end gap-2">
+              {(replyingTo || editingComment) && (
+                <Button 
+                  variant="ghost" 
+                  onClick={handleCancel}
+                  disabled={submitting}
+                >
+                  Cancel
+                </Button>
               )}
-            </Button>
+              <Button 
+                onClick={editingComment ? handleUpdateComment : handleSubmitComment}
+                disabled={!newComment.trim() || submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {editingComment ? 'Updating...' : 'Submitting...'}
+                  </>
+                ) : (
+                  editingComment ? 'Update' : replyingTo ? 'Reply' : 'Comment'
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       )}

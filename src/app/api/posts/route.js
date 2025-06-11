@@ -5,6 +5,7 @@ import Post from '@/models/Post'
 import Vote from '@/models/Vote'
 import { calculateHotScore } from '@/lib/utils'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
+import User from '@/models/User'
 
 export async function GET(request) {
   try {
@@ -163,6 +164,13 @@ export async function POST(request) {
     })
 
     await post.save()
+    
+    // Award 3 aura points to the user
+    await User.findByIdAndUpdate(
+      session.user.id,
+      { $inc: { auraPoints: 3 } }
+    )
+    
     await post.populate('author', 'username email auraPoints')
 
     return NextResponse.json(post, { status: 201 })

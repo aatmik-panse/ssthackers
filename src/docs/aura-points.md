@@ -8,6 +8,7 @@ Users earn Aura Points for the following actions:
 
 - **Creating a post**: +3 points
 - **Creating a comment**: +1 point
+- **Admin-created posts**: +3 points per post (when an admin creates a post on behalf of a user)
 
 ## Points Reduction
 
@@ -33,6 +34,19 @@ The points are modified in the following API routes:
 - `/api/posts/[id]/route.js` - deducts 3 points when deleting a post
 - `/api/comments/route.js` - awards 1 point when creating a comment
 - `/api/posts/[id]/comments/route.js` - awards 1 point when creating a comment
+- `/api/admin/posts-for-user/route.js` - awards 3 points when an admin creates a post for a user
+- `/api/auth/signup/route.js` - awards 3 points per pending post when a user signs up
+
+## Admin-Created Posts
+
+Administrators can create posts on behalf of users using their email address:
+
+1. If the user already exists, the post is created directly for them and they are awarded 3 aura points.
+2. If the user doesn't exist yet, the post is stored as a pending post and will be assigned to the user when they sign up with that email address.
+
+Pending posts are stored in the `PendingUserPost` collection and are processed during the user signup process.
+
+Users can see posts created for them by admins in a special "Admin-Created" tab on their profile page.
 
 ## Display
 

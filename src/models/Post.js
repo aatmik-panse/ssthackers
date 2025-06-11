@@ -52,7 +52,21 @@ const PostSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     }
-  }]
+  }],
+  createdByAdmin: {
+    type: Boolean,
+    default: false
+  },
+  adminCreator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  pendingPostId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PendingUserPost',
+    default: null
+  }
 }, {
   timestamps: true
 })
@@ -63,6 +77,7 @@ PostSchema.index({ hotScore: -1 })
 PostSchema.index({ votes: -1 })
 PostSchema.index({ author: 1 })
 PostSchema.index({ isDeleted: 1 })
+PostSchema.index({ createdByAdmin: 1 })
 
 // Virtual for post type
 PostSchema.virtual('type').get(function() {

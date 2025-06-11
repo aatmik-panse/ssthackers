@@ -7,9 +7,9 @@ import { getToken as getAuthToken } from 'next-auth/jwt';
  */
 export function rateLimit({
   interval = 60 * 1000, // 1 minute in milliseconds
-  limit = 10, // Default limit per interval
-  uniqueTokenPerInterval = 500, // Max number of users per interval
-  authUserMultiplier = 5, // Authenticated users get higher limits
+  limit = 100, // Default limit per interval
+  uniqueTokenPerInterval = 5000, // Max number of users per interval
+  authUserMultiplier = 15, // Authenticated users get higher limits
 }) {
   const tokenCache = new LRUCache({
     max: uniqueTokenPerInterval,

@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { PostList } from '@/components/post-list'
+import { AdminCreatedPosts } from '@/components/admin-created-posts'
 import { formatTimeAgo } from '@/lib/utils'
 import {
   Calendar,
@@ -27,6 +28,7 @@ import {
   Globe,
   Edit,
   MapPin,
+  UserPlus
 } from 'lucide-react'
 
 export default function UserProfilePage() {
@@ -220,9 +222,15 @@ export default function UserProfilePage() {
       
       {/* Activity Tabs */}
       <Tabs defaultValue="posts">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="comments">Comments</TabsTrigger>
+          {isOwnProfile && (
+            <TabsTrigger value="admin-posts" className="flex items-center gap-1.5">
+              <UserPlus className="h-4 w-4" />
+              <span>Admin-Created</span>
+            </TabsTrigger>
+          )}
         </TabsList>
         
         <TabsContent value="posts" className="mt-6">
@@ -234,6 +242,21 @@ export default function UserProfilePage() {
             <p className="text-muted-foreground">Comment history will be implemented soon.</p>
           </div>
         </TabsContent>
+        
+        {isOwnProfile && (
+          <TabsContent value="admin-posts" className="mt-6">
+            <div className="mb-4 p-4 border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 rounded-lg">
+              <h3 className="text-base font-medium mb-1 flex items-center gap-2">
+                <UserPlus className="h-4 w-4 text-amber-600" />
+                <span>Posts Created For You</span>
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                These posts were created on your behalf by administrators. You can edit them as needed.
+              </p>
+            </div>
+            <AdminCreatedPosts />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )

@@ -11,23 +11,23 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   interval: 60 * 1000, // 1 minute
-  uniqueTokenPerInterval: 100, // Max unique users per interval
-  limit: 10, // 5 requests per minute for anonymous users
-  authUserMultiplier: 1 // Same limit for auth users to prevent brute force
+  uniqueTokenPerInterval: 500, // Max unique users per interval
+  limit: 100, // 100 requests per minute for anonymous users
+  authUserMultiplier: 15 // 1500 requests per minute for authenticated users
 });
 
 const voteLimiter = rateLimit({
   interval: 60 * 1000, // 1 minute
-  uniqueTokenPerInterval: 100, 
-  limit: 10, // 10 votes per minute for anonymous users
-  authUserMultiplier: 3 // 30 votes per minute for authenticated users
+  uniqueTokenPerInterval: 500, 
+  limit: 100, // 100 votes per minute for anonymous users
+  authUserMultiplier: 15 // 1500 votes per minute for authenticated users
 });
 
 const submitLimiter = rateLimit({
   interval: 10 * 60 * 1000, // 10 minutes
-  uniqueTokenPerInterval: 100,
-  limit: 2, // 2 submissions per 10 minutes for anonymous users
-  authUserMultiplier: 5 // 10 submissions per 10 minutes for authenticated users
+  uniqueTokenPerInterval: 500,
+  limit: 100, // 100 submissions per 10 minutes for anonymous users
+  authUserMultiplier: 15 // 1500 submissions per 10 minutes for authenticated users
 });
 
 export async function middleware(request) {

@@ -209,6 +209,15 @@ export default function SignInPage() {
             duration: 8000,
           })
         }
+        
+        // Show toast notification about pending posts if any were assigned
+        if (data.pendingPostsAssigned && data.pendingPostsAssigned > 0) {
+          toast({
+            title: "Posts Assigned",
+            description: `${data.pendingPostsAssigned} post${data.pendingPostsAssigned > 1 ? 's were' : ' was'} assigned to your account and you received ${data.auraPointsAwarded} aura points!`,
+            duration: 8000,
+          })
+        }
       }
     } catch (error) {
       setFormError('An error occurred during registration')

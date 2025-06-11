@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import User from '@/models/User'
+import Post from '@/models/Post'
+import PendingUserPost from '@/models/PendingUserPost'
 import VerificationToken from '@/models/VerificationToken'
 import { isValidDomain } from '@/lib/utils'
 import { sendVerificationEmail } from '@/lib/email'
@@ -92,6 +94,48 @@ export async function POST(request) {
 
     await user.save()
 
+    // Check for pending posts for this email
+    const pendingPosts = await PendingUserPost.find({
+      email: email.toLowerCase(),
+      processed: false
+    })
+    
+    // If there are pending posts, create them for the user and award points
+    let createdPosts = 0
+    let auraPointsAwarded = 0
+    
+    if (pendingPosts.length > 0) {
+      for (const pendingPost of pendingPosts) {
+        // Create the post
+        const post = new Post({
+          title: pendingPost.title,
+          url: pendingPost.url,
+          body: pendingPost.body,
+          author: user._id,
+          createdByAdmin: true,
+          adminCreator: pendingPost.adminCreator,
+          pendingPostId: pendingPost._id
+        })
+        
+        await post.save()
+        
+        // Update the pending post to mark as processed
+        pendingPost.processed = true
+        pendingPost.processedAt = new Date()
+        pendingPost.assignedPostId = post._id
+        await pendingPost.save()
+        
+        createdPosts++
+        auraPointsAwarded += 3
+      }
+      
+      // Award aura points for all created posts
+      if (auraPointsAwarded > 0) {
+        user.auraPoints += auraPointsAwarded
+        await user.save()
+      }
+    }
+
     // Create verification token
     const verificationToken = VerificationToken.generateToken(user._id, 'email_verification')
     await verificationToken.save()
@@ -123,7 +167,9 @@ export async function POST(request) {
           name: user.name,
           username: user.username
         },
-        emailSent
+        emailSent,
+        pendingPostsAssigned: createdPosts,
+        auraPointsAwarded
       },
       { status: 201 }
     )

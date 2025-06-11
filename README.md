@@ -13,6 +13,7 @@ A modern Hacker News-style community platform built specifically for SST student
 - **Multiple Feeds**: Hot (time-decay algorithm), New (chronological), Top (by time period)
 - **Aura Points System**: Gamification with +5 aura for post upvotes, +1 for comment upvotes
 - **User Profiles**: Customizable profiles with avatars, bio, location, and social links
+- **Admin Features**: Admin dashboard with ability to create posts on behalf of users
 
 ### UI/UX Features
 - **Responsive Design**: Mobile-first with desktop optimization
@@ -25,7 +26,7 @@ A modern Hacker News-style community platform built specifically for SST student
 - **Aura Leaderboard**: Top contributors ranked by aura points
 - **Community Stats**: Real-time statistics dashboard
 - **Moderation Tools**: Flag/report system for posts and comments
-- **Admin Panel**: Content moderation and user management
+- **Admin Panel**: Content moderation, user management, and ability to create posts for users
 
 ## 🛠 Tech Stack
 
@@ -292,6 +293,11 @@ Modify point values in vote API routes:
 - `GET /api/leaderboard` - User leaderboard
 - `GET /api/stats` - Community statistics
 
+### Admin Features
+- `POST /api/admin/posts-for-user` - Create posts on behalf of users
+- `GET /api/admin/check-user` - Check if a user exists by email
+- `GET /api/users/posts-by-admin` - List posts created by admins for a user
+
 ## 📊 Monitoring & Analytics
 
 ### Database Monitoring
@@ -411,6 +417,41 @@ Rate limit information is included in response headers:
 - `X-RateLimit-Remaining`: Number of requests remaining in the current time window
 
 When a rate limit is exceeded, the API returns a 429 status code with a Retry-After header indicating when to retry.
+
+## 🧠 Admin Features
+
+### Admin Dashboard
+The platform includes an admin dashboard with various management tools:
+
+- **User Management**: View, edit, and manage user accounts
+- **Content Moderation**: Review and moderate flagged content
+- **Site Settings**: Configure site-wide settings
+
+### Posts for Users
+Administrators can create posts on behalf of users:
+
+1. **Create Posts for Existing Users**:
+   - Admins can select any user by email
+   - Posts are attributed directly to the user
+   - User receives 3 aura points per post created for them
+
+2. **Create Posts for Future Users**:
+   - Admins can create posts for emails not yet registered
+   - When a user signs up with that email, they automatically:
+     - Get access to all posts created for them
+     - Receive 3 aura points per post
+     - Can edit those posts as if they created them
+
+3. **User Interface**:
+   - Users can see posts created for them in a special "Admin-Created" tab on their profile
+   - Posts are clearly marked as admin-created but appear normally in feeds
+
+### Implementation Details
+The feature uses a pending posts system:
+- Pending posts are stored in a separate collection
+- They're linked to user emails rather than user IDs
+- During signup, the system checks for pending posts and assigns them
+- Special indicators show which admin created the post
 
 ---
 

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Shield, FileText, Users, Flag, Settings, AlertTriangle, UserPlus } from 'lucide-react'
+import { Shield, FileText, Users, Flag, AlertTriangle, UserPlus } from 'lucide-react'
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
@@ -99,29 +99,6 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="w-full justify-start">
                   <Users className="mr-2 h-4 w-4" />
                   Manage Users
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Site Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-primary" />
-              Site Settings
-            </CardTitle>
-            <CardDescription>
-              Configure site-wide settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Link href="/admin/settings">
-                <Button variant="outline" className="w-full justify-start">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Site Configuration
                 </Button>
               </Link>
             </div>

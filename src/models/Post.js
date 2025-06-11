@@ -43,11 +43,20 @@ const PostSchema = new mongoose.Schema({
     default: 0
   },
   flags: [{
-    user: {
+    flaggedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    reason: String,
+    reason: {
+      type: String,
+      enum: ['spam', 'offensive', 'harassment', 'misinformation', 'illegal', 'other'],
+      default: 'other'
+    },
+    additionalInfo: {
+      type: String,
+      trim: true,
+      maxlength: 500
+    },
     createdAt: {
       type: Date,
       default: Date.now
@@ -78,6 +87,7 @@ PostSchema.index({ votes: -1 })
 PostSchema.index({ author: 1 })
 PostSchema.index({ isDeleted: 1 })
 PostSchema.index({ createdByAdmin: 1 })
+PostSchema.index({ flagCount: -1 })
 
 // Virtual for post type
 PostSchema.virtual('type').get(function() {
@@ -104,6 +114,12 @@ PostSchema.pre('save', function(next) {
     const gravity = 1.8
     this.hotScore = (this.votes + this.commentCount * 0.5) / Math.pow(ageInHours + 2, gravity)
   }
+  
+  // Update flagCount when flags change
+  if (this.isModified('flags')) {
+    this.flagCount = this.flags.length
+  }
+  
   next()
 })
 

@@ -40,11 +40,20 @@ const CommentSchema = new mongoose.Schema({
     default: 0
   },
   flags: [{
-    user: {
+    flaggedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    reason: String,
+    reason: {
+      type: String,
+      enum: ['spam', 'offensive', 'harassment', 'misinformation', 'illegal', 'other'],
+      default: 'other'
+    },
+    additionalInfo: {
+      type: String,
+      trim: true,
+      maxlength: 500
+    },
     createdAt: {
       type: Date,
       default: Date.now
@@ -60,6 +69,7 @@ CommentSchema.index({ parent: 1 })
 CommentSchema.index({ author: 1 })
 CommentSchema.index({ votes: -1 })
 CommentSchema.index({ isDeleted: 1 })
+CommentSchema.index({ flagCount: -1 })
 
 // Pre-save hook to set depth based on parent
 CommentSchema.pre('save', async function(next) {
@@ -73,6 +83,12 @@ CommentSchema.pre('save', async function(next) {
       console.error('Error setting comment depth:', error)
     }
   }
+  
+  // Update flagCount when flags change
+  if (this.isModified('flags')) {
+    this.flagCount = this.flags.length
+  }
+  
   next()
 })
 

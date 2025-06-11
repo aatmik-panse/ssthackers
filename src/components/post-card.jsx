@@ -24,13 +24,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useToast } from '@/components/ui/use-toast'
+import FlagContentDialog from './flag-content-dialog'
 
 export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
   const { data: session } = useSession()
+  const { toast } = useToast()
   const [votes, setVotes] = useState(post.votes)
   const [userVote, setUserVote] = useState(post.userVote)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [flagDialogOpen, setFlagDialogOpen] = useState(false)
 
   const isAuthor = session?.user?.id === post.author._id
   const canEdit = isAuthor || session?.user?.isAdmin
@@ -48,59 +52,49 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
     setShowDeleteDialog(false)
   }
   
-  const handleDeletePost = async (postId) => {
-    if (!session || (!isAuthor && !session.user.isAdmin)) return
-    
+  const handleFlagSuccess = (data) => {
+    toast({
+      title: "Post reported",
+      description: "The post has been flagged for review by moderators.",
+    })
+  }
+  
+  const handleDeletePost = async () => {
     try {
       setIsDeleting(true)
       
-      const response = await fetch(`/api/posts/${postId}`, {
+      const response = await fetch(`/api/posts/${post._id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
       })
       
-      if (response.ok) {
-        // Close the dialog
-        setShowDeleteDialog(false)
-        
-        if (onPostDeleted) {
-          onPostDeleted(postId)
-        } else {
-          // If we're on the post detail page, redirect to home
-          window.location.href = '/'
-        }
-      } else {
-        const error = await response.json()
-        console.error('Failed to delete post:', error)
-        // We'll keep the dialog open if there's an error
+      if (!response.ok) {
+        throw new Error('Failed to delete post')
       }
+      
+      if (onPostDeleted) {
+        onPostDeleted(post._id)
+      }
+      
+      toast({
+        title: "Post deleted",
+        description: "Your post has been deleted successfully",
+      })
+      
     } catch (error) {
       console.error('Error deleting post:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete post",
+        variant: "destructive",
+      })
     } finally {
       setIsDeleting(false)
+      setShowDeleteDialog(false)
     }
   }
   
-  const handleFlag = async () => {
-    if (!session) return
-    
-    try {
-      const response = await fetch(`/api/posts/${post._id}/flag`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'inappropriate' })
-      })
-      
-      if (response.ok) {
-        // Show success toast
-      }
-    } catch (error) {
-      console.error('Error flagging post:', error)
-    }
-  }
-
   const domain = post.url ? extractDomain(post.url) : null
-
+  
   return (
     <>
       <Card className="post-card overflow-hidden border-2 hover:border-primary/20 transition-all">
@@ -125,7 +119,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
 
             {/* Content */}
             <div className="flex-1 min-w-0 p-4">
-              <div className="flex items-start justify-between gap-2">
+              
                 <div className="flex-1 min-w-0">
                   {/* Title */}
                   <h3 className="text-lg font-semibold leading-tight mb-1">
@@ -173,43 +167,46 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                 </div>
 
                 {/* Actions menu */}
-                {session && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {canEdit && (
-                        <>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/posts/${post._id}/edit`}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={handleDeleteClick}
+                <div className="flex items-center gap-3">
+                  {canEdit && (
+                    <>
+                      {isAuthor && (
+                        <Link href={`/posts/${post._id}/edit`}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs h-8 px-2"
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </>
+                            <Edit className="h-3.5 w-3.5 mr-1" />
+                            Edit
+                          </Button>
+                        </Link>
                       )}
-                      {!isAuthor && (
-                        <DropdownMenuItem onClick={handleFlag}>
-                          <Flag className="mr-2 h-4 w-4" />
-                          Report
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-8 px-2 text-destructive"
+                        onClick={handleDeleteClick}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1" />
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                  
+                  {session && !isAuthor && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-xs h-8 px-2"
+                      onClick={() => setFlagDialogOpen(true)}
+                    >
+                      <Flag className="h-3.5 w-3.5 mr-1" />
+                      Report
+                    </Button>
+                  )}
+                </div>
 
-              {/* Metadata */}
               <div className="flex items-center flex-wrap gap-4 text-sm text-muted-foreground mt-3 pt-3 border-t">
                 <span className="flex items-center gap-1.5">
                   <UserAvatar user={post.author} size="xs" />
@@ -242,6 +239,15 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
         postId={post._id}
         postTitle={post.title}
         isDeleting={isDeleting}
+      />
+      
+      {/* Flag Post Dialog */}
+      <FlagContentDialog
+        open={flagDialogOpen}
+        onOpenChange={setFlagDialogOpen}
+        contentId={post._id}
+        contentType="post"
+        onSuccess={handleFlagSuccess}
       />
     </>
   )

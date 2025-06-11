@@ -14,7 +14,10 @@ import {
   Flag,
   MoreHorizontal,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  ArrowUp,
+  ArrowDown,
+  Reply
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -22,6 +25,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Card } from '@/components/ui/card'
+import { Textarea } from '@/components/ui/textarea'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/use-toast'
+import FlagContentDialog from './flag-content-dialog'
 
 export function CommentItem({ 
   comment, 
@@ -32,9 +40,15 @@ export function CommentItem({
   onDelete
 }) {
   const { data: session } = useSession()
+  const router = useRouter()
+  const { toast } = useToast()
   const [isExpanded, setIsExpanded] = useState(true)
   const [votes, setVotes] = useState(comment.votes)
   const [userVote, setUserVote] = useState(comment.userVote)
+  const [isReplying, setIsReplying] = useState(false)
+  const [replyContent, setReplyContent] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [flagDialogOpen, setFlagDialogOpen] = useState(false)
   
   const isAuthor = session?.user?.id === comment.author._id
   const isAdmin = session?.user?.isAdmin
@@ -63,17 +77,86 @@ export function CommentItem({
     if (onDelete) onDelete(comment._id)
   }
   
-  const handleFlag = async () => {
-    if (!session) return
+  // This is now handled by our FlagContentDialog component
+  const handleFlagSuccess = (data) => {
+    toast({
+      title: "Comment reported",
+      description: "The comment has been flagged for review by moderators.",
+    })
+  }
+  
+  const handleReplySubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+    
+    if (!replyContent.trim()) {
+      toast({
+        title: "Empty comment",
+        description: "Please enter a comment before submitting",
+        variant: "destructive",
+      })
+      return
+    }
     
     try {
-      await fetch(`/api/comments/${comment._id}/flag`, {
+      setIsSubmitting(true)
+      
+      const response = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'inappropriate' })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: replyContent,
+          parentId: comment._id,
+        }),
       })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to add comment')
+      }
+      
+      const newComment = await response.json()
+      
+      // Reset state
+      setReplyContent('')
+      setIsReplying(false)
+      
+      // Call parent handler if provided
+      if (onReply) {
+        onReply(newComment)
+      }
+      
+      toast({
+        title: "Reply added",
+        description: "Your reply has been added successfully",
+      })
+      
     } catch (error) {
-      console.error('Error flagging comment:', error)
+      console.error('Error adding reply:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add reply",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+  const handleVote = async (type) => {
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+    
+    if (onReply) {
+      onReply(comment._id, type)
     }
   }
   
@@ -168,9 +251,9 @@ export function CommentItem({
                 variant="ghost" 
                 size="sm" 
                 className="h-7 px-2 text-xs"
-                onClick={handleReply}
+                onClick={() => setIsReplying(!isReplying)}
               >
-                <MessageCircle className="h-3 w-3 mr-1" />
+                <Reply className="h-3 w-3 mr-1" />
                 Reply
               </Button>
               
@@ -206,7 +289,7 @@ export function CommentItem({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={handleFlag}>
+                    <DropdownMenuItem onClick={() => setFlagDialogOpen(true)}>
                       <Flag className="mr-2 h-3 w-3" />
                       <span className="text-xs">Report</span>
                     </DropdownMenuItem>
@@ -234,6 +317,46 @@ export function CommentItem({
           ))}
         </div>
       )}
+      
+      {isReplying && (
+        <Card className="p-3 mt-2 ml-10">
+          <form onSubmit={handleReplySubmit}>
+            <Textarea
+              placeholder="Write a reply..."
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+              className="min-h-[100px] mb-2"
+              disabled={isSubmitting}
+            />
+            <div className="flex justify-end gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsReplying(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                size="sm"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Submitting...' : 'Reply'}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
+      
+      <FlagContentDialog
+        open={flagDialogOpen}
+        onOpenChange={setFlagDialogOpen}
+        contentId={comment._id}
+        contentType="comment"
+        onSuccess={handleFlagSuccess}
+      />
     </div>
   )
 } 

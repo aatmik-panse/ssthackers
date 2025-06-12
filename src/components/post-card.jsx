@@ -17,7 +17,9 @@ import {
   Edit,
   Trash2,
   User,
-  Mail
+  Mail,
+  Share2,
+  ArrowRight
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -60,6 +62,24 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
       title: "Post reported",
       description: "The post has been flagged for review by moderators.",
     })
+  }
+  
+  const handleShare = async () => {
+    try {
+      const postUrl = `${window.location.origin}/posts/${post._id}`
+      await navigator.clipboard.writeText(postUrl)
+      toast({
+        title: "Link copied!",
+        description: "Post link copied to clipboard",
+      })
+    } catch (error) {
+      // If clipboard fails, show the URL in a toast
+      toast({
+        title: "Share link",
+        description: `${window.location.origin}/posts/${post._id}`,
+        duration: 5000,
+      })
+    }
   }
   
   const handleDeletePost = async () => {
@@ -139,18 +159,25 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                     ) : (
                       <Link 
                         href={`/posts/${post._id}`}
-                        className="hover:text-primary transition-colors"
+                        className="hover:text-primary transition-colors flex items-center gap-1"
                       >
                         {post.title}
+                        <ArrowRight className="inline h-3 w-3 opacity-60" />
                       </Link>
                     )}
                   </h3>
 
                   {/* Domain */}
                   {domain && (
-                    <p className="text-xs text-muted-foreground mb-2">
+                    <a 
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors mb-2 inline-flex items-center gap-1"
+                    >
                       ({domain})
-                    </p>
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
                   )}
 
                   {/* Body preview for text posts */}
@@ -242,6 +269,14 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                   <MessageCircle className="h-3 w-3" />
                   <span className="font-medium">{post.commentCount} comments</span>
                 </Link>
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
+                  title="Share post"
+                >
+                  <Share2 className="h-3 w-3" />
+                  <span className="font-medium">Share</span>
+                </button>
               </div>
             </div>
           </div>

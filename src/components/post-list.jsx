@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { VoteButtons } from '@/components/vote-buttons'
 import { formatTimeAgo, extractDomain } from '@/lib/utils'
-import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon, User, Mail } from 'lucide-react'
+import { MessageSquare as MessageSquareIcon, User, Mail, Share2, ArrowRight, ExternalLink } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 
 export function PostList({ feed = 'hot', userId, limit = 20 }) {
   const [posts, setPosts] = useState([])
@@ -186,6 +187,7 @@ export function PostList({ feed = 'hot', userId, limit = 20 }) {
 function PostCard({ post, onVoteUpdate }) {
   const { data: session } = useSession()
   const router = useRouter()
+  const { toast } = useToast()
   const domain = post.url ? extractDomain(post.url) : null
   const voteCount = post.votes || 0
   
@@ -194,6 +196,24 @@ function PostCard({ post, onVoteUpdate }) {
   const handleVoteClick = () => {
     if (!session) {
       router.push('/auth/signin?callbackUrl=/')
+    }
+  }
+  
+  const handleShare = async () => {
+    try {
+      const postUrl = `${window.location.origin}/posts/${post._id}`
+      await navigator.clipboard.writeText(postUrl)
+      toast({
+        title: "Link copied!",
+        description: "Post link copied to clipboard",
+      })
+    } catch (error) {
+      // If clipboard fails, show the URL in a toast
+      toast({
+        title: "Share link",
+        description: `${window.location.origin}/posts/${post._id}`,
+        duration: 5000,
+      })
     }
   }
   
@@ -222,9 +242,10 @@ function PostCard({ post, onVoteUpdate }) {
                 <h3 className="font-semibold text-sm sm:text-base leading-snug mb-1">
                   <Link 
                     href={`/posts/${post._id}`} 
-                    className="hover:text-primary transition-colors"
+                    className="hover:text-primary transition-colors flex items-center gap-1"
                   >
                     {post.title}
+                    <ArrowRight className="inline h-3 w-3 opacity-60 flex-shrink-0" />
                   </Link>
                 </h3>
                 
@@ -233,9 +254,10 @@ function PostCard({ post, onVoteUpdate }) {
                     href={post.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
                   >
                     ({domain})
+                    <ExternalLink className="h-2.5 w-2.5" />
                   </Link>
                 )}
               </div>
@@ -278,6 +300,15 @@ function PostCard({ post, onVoteUpdate }) {
                     <MessageSquareIcon className="h-3 w-3" />
                     <span>{post.commentCount || 0} comments</span>
                   </Link>
+                  
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
+                    title="Share post"
+                  >
+                    <Share2 className="h-3 w-3" />
+                    <span>Share</span>
+                  </button>
                 </div>
               </div>
             </div>

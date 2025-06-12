@@ -10,14 +10,14 @@ export function PostListSkeleton() {
         <Card key={i} className="overflow-hidden border-2">
           <div className="flex">
             {/* Vote sidebar skeleton */}
-            <div className="w-16 bg-muted/20 flex flex-col items-center py-4 gap-1">
+            <div className="w-14 sm:w-16 bg-muted/20 flex flex-col items-center justify-center py-4 gap-1">
               <Skeleton className="h-6 w-6 rounded" />
               <Skeleton className="h-4 w-6 rounded" />
               <Skeleton className="h-6 w-6 rounded" />
             </div>
             
             {/* Content skeleton with staggered animation */}
-            <CardContent className="p-4 w-full space-y-2">
+            <CardContent className="p-4 w-full space-y-3">
               <Skeleton 
                 className="h-5 w-3/4 mb-1" 
                 style={{ 

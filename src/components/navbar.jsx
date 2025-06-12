@@ -42,8 +42,8 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="relative w-8 h-8 transition-transform group-hover:scale-110">
+          <Link href="/" className="flex items-center space-x-2 group min-w-0">
+            <div className="relative w-8 h-8 transition-transform group-hover:scale-110 flex-shrink-0">
               <Image 
                 src="/images/1.jpg"
                 alt="SST Hackers Logo"
@@ -61,7 +61,7 @@ export function Navbar() {
                 priority
               />
             </div>
-            <span className="font-bold text-xl text-primary">
+            <span className="font-bold text-lg sm:text-xl text-primary truncate">
               SST Hackers
             </span>
           </Link>
@@ -179,19 +179,78 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t">
-            <div 
-              className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200"
+          <div className="md:hidden py-4 border-t space-y-4">
+            {/* Submit Link */}
+            <button
+              className="flex items-center space-x-2 text-primary font-medium hover:text-primary/80 transition-all duration-200 w-full text-left"
               onClick={() => {
                 setMobileMenuOpen(false);
                 session ? window.location.href = '/submit' : signIn(undefined, { callbackUrl: '/submit' });
               }}
             >
               <Plus size={16} />
-              <span>Submit</span>
-            </div>
+              <span>Submit Post</span>
+            </button>
 
-            <div className="flex items-center justify-between pt-4 border-t">
+            {/* User Section */}
+            {session ? (
+              <div className="space-y-3 pt-3 border-t">
+                <div className="flex items-center space-x-3">
+                  <UserAvatar user={session.user} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{session.user.username}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.user.auraPoints} Aura Points
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col space-y-2">
+                  <Button 
+                    asChild
+                    variant="ghost" 
+                    size="sm" 
+                    className="justify-start"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link href={`/user/${session.user.username}`}>
+                      <User className="mr-2 h-4 w-4" />
+                      View Profile
+                    </Link>
+                  </Button>
+                  
+                  {session.user.isAdmin && (
+                    <Button 
+                      asChild
+                      variant="ghost" 
+                      size="sm" 
+                      className="justify-start"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link href="/admin">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Panel
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="pt-3 border-t">
+                <Button 
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signIn();
+                  }}
+                  className="bg-primary hover:bg-primary/90 transition-all duration-200 w-full"
+                >
+                  Sign In
+                </Button>
+              </div>
+            )}
+
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between pt-3 border-t">
               <Button
                 variant="ghost"
                 size="sm"
@@ -204,26 +263,18 @@ export function Navbar() {
                 </span>
               </Button>
 
-              {session ? (
-                <div className="flex items-center space-x-2">
-                  <UserAvatar user={session.user} size="xs" />
-                  <span className="text-sm font-medium">{session.user.username}</span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => signOut()}
-                    className="hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
-                  >
-                    <LogOut size={16} />
-                  </Button>
-                </div>
-              ) : (
+              {session && (
                 <Button 
+                  variant="ghost" 
                   size="sm" 
-                  onClick={() => signIn()}
-                  className="bg-primary hover:bg-primary/90 transition-all duration-200"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut();
+                  }}
+                  className="hover:bg-red-500/10 hover:text-red-500 transition-all duration-200"
                 >
-                  Sign In
+                  <LogOut size={16} className="mr-2" />
+                  Sign Out
                 </Button>
               )}
             </div>

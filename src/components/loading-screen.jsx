@@ -40,8 +40,8 @@ export function LoadingScreen() {
       animate={{ opacity: progress >= 100 ? 0 : 1 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="flex flex-col items-center max-w-md px-8">
-        <h1 className="text-3xl font-bold mb-6">SST Hackers</h1>
+      <div className="flex flex-col items-center max-w-sm sm:max-w-md px-6 sm:px-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-center">SST Hackers</h1>
         <div className="w-full bg-muted rounded-full h-2.5 mb-4">
           <motion.div 
             className="bg-primary h-2.5 rounded-full"
@@ -50,7 +50,7 @@ export function LoadingScreen() {
             transition={{ duration: 0.2 }}
           />
         </div>
-        <p className="text-muted-foreground text-sm">Loading community content...</p>
+        <p className="text-muted-foreground text-sm text-center">Loading community content...</p>
       </div>
     </motion.div>
   )

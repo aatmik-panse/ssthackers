@@ -89,4 +89,38 @@
 .comment-thread {
   @apply border-l border-border ml-4 pl-4;
 }
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  /* Prevent horizontal scroll on small screens */
+  html {
+    overflow-x: hidden;
+  }
+  
+  /* Improve touch targets on mobile */
+  button, a {
+    min-height: 44px;
+  }
+  
+  /* Better tap highlights for mobile */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Improve text readability on all screens */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Safe area insets for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
 /* beasties:exclude end */

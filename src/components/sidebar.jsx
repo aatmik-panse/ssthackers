@@ -41,7 +41,7 @@ export function Sidebar() {
   }, [])
 
   return (
-    <div className="space-y-8 max-w-full">
+    <div className="space-y-6 lg:space-y-8 max-w-full">
       {/* Community Stats */}
       <Card className="overflow-hidden border-2">
         <CardHeader className="pb-4 bg-primary/5">

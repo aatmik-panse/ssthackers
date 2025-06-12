@@ -198,11 +198,11 @@ function PostCard({ post, onVoteUpdate }) {
   }
   
   return (
-    <Card className="border-2 hover:border-primary/20 transition-all">
+    <Card className="border-2 hover:border-primary/20 transition-all overflow-hidden">
       <CardContent className="p-0">
         <div className="flex">
-          {/* Vote Sidebar */}
-          <div className="w-16 bg-muted/20 flex flex-col items-center py-4 gap-1">
+          {/* Vote Sidebar - Better mobile sizing */}
+          <div className="w-14 sm:w-16 bg-muted/20 flex flex-col items-center justify-center py-4 gap-1">
             <VoteButtons
               type="post"
               itemId={post._id}
@@ -214,65 +214,71 @@ function PostCard({ post, onVoteUpdate }) {
             />
           </div>
           
-          {/* Content */}
-          <div className="flex-1 p-4">
-            <div className="space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <div>
+          {/* Content - Better mobile layout */}
+          <div className="flex-1 p-4 min-w-0">
+            <div className="space-y-3">
+              {/* Title and domain */}
+              <div>
+                <h3 className="font-semibold text-sm sm:text-base leading-snug mb-1">
                   <Link 
                     href={`/posts/${post._id}`} 
-                    className="text-lg font-medium hover:text-primary transition-colors"
+                    className="hover:text-primary transition-colors"
                   >
                     {post.title}
                   </Link>
-                  
-                  {domain && (
-                    <Link 
-                      href={post.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      ({domain})
-                    </Link>
-                  )}
-                </div>
+                </h3>
+                
+                {domain && (
+                  <Link 
+                    href={post.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    ({domain})
+                  </Link>
+                )}
               </div>
               
-              <div className="flex items-center text-xs text-muted-foreground gap-4">
-                {hasAuthor ? (
-                  <div className="flex items-center gap-1.5">
-                    <UserAvatar user={post.author} size="xs" />
-                    <Link 
-                      href={`/user/${post.author.username}`}
-                      className="hover:text-foreground transition-colors"
-                    >
-                      {post.author.username || post.author.name}
-                    </Link>
-                  </div>
+              {/* Metadata - Stacked on mobile for better readability */}
+              <div className="space-y-2 sm:space-y-1">
+                                  {/* Author info */}
+                  {hasAuthor ? (
+                    <div className="flex items-center gap-2">
+                      <UserAvatar user={post.author} size="xs" />
+                      <Link 
+                        href={`/user/${post.author.username}`}
+                        className="text-xs font-medium hover:text-foreground transition-colors leading-none flex items-center"
+                      >
+                        {post.author.username || post.author.name}
+                      </Link>
+                    </div>
                 ) : post.targetUserEmail ? (
-                  <div className="flex items-center gap-1.5">
-                    <Mail className="h-3.5 w-3.5 text-amber-500" />
-                    <span className="text-amber-600">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3 w-3 text-amber-500 flex-shrink-0" />
+                    <span className="text-xs text-amber-600 font-medium">
                       {post.targetUserEmail} (waiting for signup)
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5" />
-                    <span>Unknown user</span>
+                  <div className="flex items-center gap-2">
+                    <User className="h-3 w-3" />
+                    <span className="text-xs">Unknown user</span>
                   </div>
                 )}
                 
-                <div>{formatTimeAgo(post.createdAt)}</div>
-                
-                <Link 
-                  href={`/posts/${post._id}`}
-                  className="flex items-center gap-1 hover:text-foreground transition-colors"
-                >
-                  <MessageSquareIcon className="h-3.5 w-3.5" />
-                  <span>{post.commentCount || 0} comments</span>
-                </Link>
+                {/* Time and comments */}
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <span>{formatTimeAgo(post.createdAt)}</span>
+                  
+                  <Link 
+                    href={`/posts/${post._id}`}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
+                    <MessageSquareIcon className="h-3 w-3" />
+                    <span>{post.commentCount || 0} comments</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

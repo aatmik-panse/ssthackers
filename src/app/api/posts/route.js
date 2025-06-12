@@ -15,7 +15,7 @@ export async function GET(request) {
     await connectDB()
     
     const { searchParams } = new URL(request.url)
-    const feed = searchParams.get('feed') || 'hot'
+    const sort = searchParams.get('sort') || searchParams.get('feed') || 'hot'
     const limit = parseInt(searchParams.get('limit')) || 20
     const page = parseInt(searchParams.get('page')) || 1
     const userId = searchParams.get('userId')
@@ -30,7 +30,7 @@ export async function GET(request) {
     // Remove the filter that excludes posts with null authors
     // Now show all posts including those waiting to be assigned
     
-    let sort = {}
+    let sortOptions = {}
 
     // Add user/author filter if specified
     if (userId) {
@@ -40,10 +40,10 @@ export async function GET(request) {
     }
 
     // Create cache key based on query parameters
-    const cacheKey = `posts-${feed}-${limit}-${page}-${userId || ''}-${authorId || ''}-${timeFilter || ''}-${session?.user?.id || ''}`
+    const cacheKey = `posts-${sort}-${limit}-${page}-${userId || ''}-${authorId || ''}-${timeFilter || ''}-${session?.user?.id || ''}`
     
     // Handle different feed types
-    switch (feed) {
+    switch (sort) {
       case 'hot':
         // Calculate and update hot scores for recent posts
         const recentPosts = await Post.find({
@@ -58,11 +58,11 @@ export async function GET(request) {
           }
         }
 
-        sort = { hotScore: -1, createdAt: -1 }
+        sortOptions = { hotScore: -1, createdAt: -1 }
         break
 
       case 'new':
-        sort = { createdAt: -1 }
+        sortOptions = { createdAt: -1 }
         break
 
       case 'top':
@@ -76,17 +76,17 @@ export async function GET(request) {
           const days = timeMap[timeFilter] || 1
           query.createdAt = { $gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000) }
         }
-        sort = { votes: -1, createdAt: -1 }
+        sortOptions = { votes: -1, createdAt: -1 }
         break
 
       default:
-        sort = { createdAt: -1 }
+        sortOptions = { createdAt: -1 }
     }
 
     // Fetch posts with pagination
     const posts = await Post.find(query)
       .populate('author', 'username email auraPoints')
-      .sort(sort)
+      .sort(sortOptions)
       .skip(skip)
       .limit(limit + 1) // Get one extra to check if there are more
 

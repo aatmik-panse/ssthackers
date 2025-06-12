@@ -11,7 +11,7 @@ import { VoteButtons } from '@/components/vote-buttons'
 import { formatTimeAgo, extractDomain } from '@/lib/utils'
 import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon, User, Mail } from 'lucide-react'
 
-export function PostList({ feed = 'hot', userId, limit = 10 }) {
+export function PostList({ feed = 'hot', userId, limit = 20 }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [initialLoad, setInitialLoad] = useState(true)

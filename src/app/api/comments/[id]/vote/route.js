@@ -7,8 +7,14 @@ import User from '@/models/User'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function POST(request, { params }) {
+  // Define variables that need to be accessible in both try and catch blocks
+  let session;
+  let commentId;
+  let type;
+  let comment;
+  
   try {
-    const session = await getServerSession(authOptions)
+    session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -17,7 +23,8 @@ export async function POST(request, { params }) {
     }
     
     // Properly await params
-    const { id: commentId } = await params
+    const { id } = await params
+    commentId = id
     if (!commentId) {
       return NextResponse.json(
         { error: 'Comment ID is required' },
@@ -29,7 +36,7 @@ export async function POST(request, { params }) {
     
     // Get vote type from request body
     const data = await request.json()
-    const { type } = data
+    type = data.type
     
     if (!['upvote', 'downvote', 'remove'].includes(type)) {
       return NextResponse.json(
@@ -39,7 +46,7 @@ export async function POST(request, { params }) {
     }
     
     // Check if comment exists
-    const comment = await Comment.findById(commentId).populate('author', 'auraPoints')
+    comment = await Comment.findById(commentId).populate('author', 'auraPoints')
     if (!comment) {
       return NextResponse.json(
         { error: 'Comment not found' },
@@ -121,11 +128,39 @@ export async function POST(request, { params }) {
         })
         
         if (existingVote) {
+          // Calculate what the vote change should be
+          let voteChange = 0;
+          if (existingVote.type === 'upvote' && type === 'downvote') {
+            voteChange = -2; // From upvote to downvote
+            console.log('Changing from upvote to downvote, vote change:', voteChange);
+          } else if (existingVote.type === 'downvote' && type === 'upvote') {
+            voteChange = 2; // From downvote to upvote
+            console.log('Changing from downvote to upvote, vote change:', voteChange);
+          } else {
+            console.log('No vote type change needed:', existingVote.type, type);
+          }
+          
+          // Update comment vote count if needed
+          if (voteChange !== 0) {
+            await Comment.findByIdAndUpdate(
+              commentId,
+              { $inc: { votes: voteChange } },
+              { new: true }
+            );
+            
+            // Update the vote type
+            existingVote.type = type;
+            await existingVote.save();
+          }
+          
+          // Get the updated comment
+          const updatedComment = await Comment.findById(commentId);
+          
           return NextResponse.json({
-            votes: comment.votes,
+            votes: updatedComment.votes,
             userVote: existingVote.type,
-            message: 'Vote already exists'
-          })
+            message: 'Vote updated'
+          });
         }
       } catch (findError) {
         console.error('Error finding existing vote:', findError)

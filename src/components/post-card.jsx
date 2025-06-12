@@ -42,9 +42,10 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
   const canEdit = isAuthor || session?.user?.isAdmin
 
   const handleVoteUpdate = (newVotes, newUserVote) => {
-    setVotes(newVotes)
-    setUserVote(newUserVote)
-  }
+    console.log('Post card vote update:', newVotes, newUserVote);
+    setVotes(newVotes);
+    setUserVote(newUserVote);
+  };
 
   const handleDeleteClick = () => {
     setShowDeleteDialog(true)

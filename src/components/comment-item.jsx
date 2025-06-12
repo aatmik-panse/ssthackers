@@ -61,9 +61,10 @@ export function CommentItem({
   }
   
   const handleVoteUpdate = (newVotes, newUserVote) => {
-    setVotes(newVotes)
-    setUserVote(newUserVote)
-  }
+    console.log('Comment vote update:', newVotes, newUserVote);
+    setVotes(newVotes);
+    setUserVote(newUserVote);
+  };
   
   const handleReply = () => {
     if (onReply) onReply(comment._id)

@@ -53,7 +53,9 @@ export function VoteButtons({
       }
 
       const data = await response.json()
+      console.log('Vote API response:', data);
       onVoteUpdate(data.votes, data.userVote)
+      console.log('Updated votes:', data.votes, 'userVote:', data.userVote);
       
       // Show success message if vote was recovered from duplicate error
       if (data.message === 'Vote already exists') {
@@ -61,6 +63,8 @@ export function VoteButtons({
           title: "Vote restored",
           description: "Your existing vote has been restored.",
         })
+      } else if (data.message === 'Vote updated') {
+        console.log('Vote updated successfully:', data);
       }
     } catch (error) {
       console.error('Error voting:', error)

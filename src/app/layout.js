@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 import { ToasterProvider } from '@/components/toaster-provider'
+import { Analytics } from "@vercel/analytics/next"
 
 // Dynamic import for Navbar
 const Navbar = dynamic(() => import('@/components/navbar').then(mod => mod.Navbar), {
@@ -50,6 +51,8 @@ export default async function RootLayout({ children }) {
             <ToasterProvider />
           </ThemeProvider>
         </SessionProvider>
+        <Analytics />
+
       </body>
     </html>
   )

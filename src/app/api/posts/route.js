@@ -26,6 +26,10 @@ export async function GET(request) {
     const session = await getServerSession(authOptions)
 
     let query = { isDeleted: false }
+    
+    // Only show posts with authors (filter out posts waiting to be assigned)
+    query.author = { $ne: null }
+    
     let sort = {}
 
     // Add user/author filter if specified

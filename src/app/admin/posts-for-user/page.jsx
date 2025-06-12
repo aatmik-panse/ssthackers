@@ -200,9 +200,9 @@ export default function CreatePostForUser() {
         <AlertTriangle className="h-4 w-4 text-amber-500" />
         <AlertTitle>Admin Action</AlertTitle>
         <AlertDescription>
-          You are creating a post on behalf of another user. The post will be attributed to them,
-          and they will receive the 3 aura points for the post. If the user doesn't exist yet,
-          the post will be associated with their email and assigned to them when they sign up.
+          You are creating a post on behalf of another user. The post will appear as if created by the user directly, 
+          with no indication that it was created by an admin. If the user doesn't exist yet, 
+          the post will be assigned to them when they sign up with the specified email.
         </AlertDescription>
       </Alert>
       

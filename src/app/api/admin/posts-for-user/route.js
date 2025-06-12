@@ -58,10 +58,12 @@ export async function POST(request) {
       title: title.trim(),
       url: url?.trim() || null,
       body: body?.trim() || null,
-      // If user exists, use their ID; otherwise use the admin's ID temporarily
-      author: user ? user._id : session.user.id,
-      createdByAdmin: true,
-      adminCreator: session.user.id,
+      // If user exists, use their ID; otherwise use a placeholder system ID
+      author: user ? user._id : null,
+      // Don't show that the post was created by admin
+      createdByAdmin: false,
+      // Don't store admin creator information
+      adminCreator: null,
       // Store the target email if user doesn't exist yet
       targetUserEmail: user ? null : userEmail.toLowerCase()
     })
@@ -83,12 +85,18 @@ export async function POST(request) {
         username: user.username
       }, { status: 201 })
     } else {
-      // Return the post with admin info (will be reassigned later)
+      // Return the post without admin info
       return NextResponse.json({
         success: true,
-        post: await Post.findById(post._id).populate('author', 'username email auraPoints'),
+        post: {
+          _id: post._id,
+          title: post.title,
+          url: post.url,
+          body: post.body,
+          targetUserEmail: post.targetUserEmail
+        },
         userExists: false,
-        message: "Post created and will be reassigned when user signs up"
+        message: "Post created and will be assigned when user signs up"
       }, { status: 201 })
     }
   } catch (error) {

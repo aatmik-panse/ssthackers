@@ -42,9 +42,9 @@ The points are modified in the following API routes:
 Administrators can create posts on behalf of users using their email address:
 
 1. If the user already exists, the post is created directly for them and they are awarded 3 aura points.
-2. If the user doesn't exist yet, the post is still created in the regular posts collection but with the admin as the temporary author and the target user's email stored. When the user signs up with that email address, the post is reassigned to them and they are awarded 3 aura points.
+2. If the user doesn't exist yet, the post is temporarily stored with no author but with the target user's email. When the user signs up with that email address, the post is assigned to them and they are awarded 3 aura points.
 
-Users can see posts created for them by admins in a special "Admin-Created" tab on their profile page.
+Posts created by admins for users appear as regular posts with no indication that they were created by an admin. This ensures a seamless experience for both the target user and the community.
 
 ## Display
 

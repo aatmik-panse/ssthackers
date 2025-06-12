@@ -132,8 +132,7 @@ export async function POST(request) {
           url: pendingPost.url,
           body: pendingPost.body,
           author: user._id,
-          createdByAdmin: true,
-          adminCreator: pendingPost.adminCreator,
+          createdByAdmin: false, // Don't show admin creation
           pendingPostId: pendingPost._id
         })
         

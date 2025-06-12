@@ -18,39 +18,17 @@ export async function GET(request) {
 
     await connectDB()
     
-    // Get pagination parameters
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit')) || 10
-    const page = parseInt(searchParams.get('page')) || 1
-    const skip = (page - 1) * limit
-    
-    // Find all posts created by admin for this user
-    const posts = await Post.find({
-      author: session.user.id,
-      createdByAdmin: true,
-      isDeleted: false
-    })
-    .populate('adminCreator', 'username name')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    
-    // Get total count for pagination
-    const totalPosts = await Post.countDocuments({
-      author: session.user.id,
-      createdByAdmin: true,
-      isDeleted: false
-    })
-    
+    // Return empty response as admin-created posts are no longer tracked separately
     return NextResponse.json({
-      posts,
+      posts: [],
       pagination: {
-        page,
-        limit,
-        totalPosts,
-        totalPages: Math.ceil(totalPosts / limit),
-        hasMore: page * limit < totalPosts
-      }
+        page: 1,
+        limit: 10,
+        totalPosts: 0,
+        totalPages: 0,
+        hasMore: false
+      },
+      message: "Admin-created posts are no longer tracked separately and appear as regular posts."
     })
     
   } catch (error) {

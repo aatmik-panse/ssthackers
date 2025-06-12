@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -14,51 +14,83 @@ import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon } from 
 export function PostList({ feed = 'hot', userId, limit = 10 }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [initialLoad, setInitialLoad] = useState(true)
   const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const loadingRef = useRef(null)
+  const prevFeed = useRef(feed)
   
+  const fetchPosts = useCallback(async (pageNum = 1, reset = false) => {
+    try {
+      setLoading(true)
+      const queryParams = new URLSearchParams({
+        page: pageNum,
+        limit,
+        sort: feed,
+        ...(userId ? { author: userId } : {})
+      })
+      
+      const response = await fetch(`/api/posts?${queryParams}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts')
+      }
+      
+      const data = await response.json()
+      
+      if (reset || pageNum === 1) {
+        setPosts(data.posts)
+      } else {
+        setPosts(prev => [...prev, ...data.posts])
+      }
+      
+      setHasMore(data.hasMore)
+      setError(null)
+      setInitialLoad(false)
+    } catch (err) {
+      console.error('Error fetching posts:', err)
+      setError('Failed to load posts')
+      setInitialLoad(false)
+    } finally {
+      setLoading(false)
+    }
+  }, [feed, userId, limit])
+  
+  // Handle initial load and feed changes
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true)
-        const queryParams = new URLSearchParams({
-          page,
-          limit,
-          sort: feed,
-          ...(userId ? { author: userId } : {})
-        })
-        
-        const response = await fetch(`/api/posts?${queryParams}`)
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts')
+    // Reset everything when feed changes
+    if (prevFeed.current !== feed) {
+      setPage(1)
+      fetchPosts(1, true)
+      prevFeed.current = feed
+    } else if (page === 1) {
+      fetchPosts(1)
+    }
+  }, [fetchPosts, feed, page])
+  
+  // Handle pagination with intersection observer
+  useEffect(() => {
+    if (!loadingRef.current || loading || !hasMore || initialLoad) return
+    
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage(prev => prev + 1)
+          fetchPosts(page + 1)
         }
-        
-        const data = await response.json()
-        
-        if (page === 1) {
-          setPosts(data.posts)
-        } else {
-          setPosts(prev => [...prev, ...data.posts])
-        }
-        
-        setHasMore(data.hasMore)
-        setError(null)
-      } catch (err) {
-        console.error('Error fetching posts:', err)
-        setError('Failed to load posts')
-      } finally {
-        setLoading(false)
+      },
+      { threshold: 0.5 }
+    )
+    
+    observer.observe(loadingRef.current)
+    
+    return () => {
+      if (loadingRef.current) {
+        observer.unobserve(loadingRef.current)
       }
     }
-    
-    fetchPosts()
-  }, [userId, page, limit, feed])
-  
-  const handleLoadMore = () => {
-    setPage(prev => prev + 1)
-  }
+  }, [loading, hasMore, fetchPosts, page, initialLoad])
   
   // Handle vote update
   const handleVoteUpdate = (postId, newVotes, newUserVote) => {
@@ -71,7 +103,7 @@ export function PostList({ feed = 'hot', userId, limit = 10 }) {
     )
   }
   
-  if (loading && page === 1) {
+  if (initialLoad) {
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
@@ -98,7 +130,7 @@ export function PostList({ feed = 'hot', userId, limit = 10 }) {
     return (
       <div className="py-6 text-center">
         <p className="text-destructive">{error}</p>
-        <Button variant="outline" size="sm" onClick={() => setPage(1)} className="mt-4">
+        <Button variant="outline" size="sm" onClick={() => fetchPosts(1, true)} className="mt-4">
           Try Again
         </Button>
       </div>
@@ -125,32 +157,26 @@ export function PostList({ feed = 'hot', userId, limit = 10 }) {
         />
       ))}
       
-      {loading && page > 1 && (
-        <div className="animate-pulse space-y-4">
-          {[...Array(2)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="flex gap-4">
-                  <div className="w-12 flex flex-col items-center gap-1">
-                    <div className="h-8 w-8 bg-muted rounded"></div>
+      {/* Loading indicator for infinite scroll */}
+      {hasMore && (
+        <div ref={loadingRef} className="h-20 flex items-center justify-center">
+          {loading && (
+            <div className="animate-pulse space-y-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex gap-4">
+                    <div className="w-12 flex flex-col items-center gap-1">
+                      <div className="h-8 w-8 bg-muted rounded"></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                      <div className="h-3 bg-muted rounded w-1/4"></div>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                    <div className="h-3 bg-muted rounded w-1/4"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-      
-      {hasMore && !loading && (
-        <div className="flex justify-center mt-6">
-          <Button onClick={handleLoadMore} variant="outline">
-            Load More
-          </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -238,4 +264,7 @@ function PostCard({ post, onVoteUpdate }) {
       </CardContent>
     </Card>
   )
-} 
+}
+
+// Default export for lazy loading
+export default PostList; 

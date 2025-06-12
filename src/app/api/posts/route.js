@@ -7,6 +7,9 @@ import { calculateHotScore } from '@/lib/utils'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 import User from '@/models/User'
 
+// Cache responses for 10 seconds
+export const revalidate = 10
+
 export async function GET(request) {
   try {
     await connectDB()
@@ -32,6 +35,9 @@ export async function GET(request) {
       query.author = authorId
     }
 
+    // Create cache key based on query parameters
+    const cacheKey = `posts-${feed}-${limit}-${page}-${userId || ''}-${authorId || ''}-${timeFilter || ''}-${session?.user?.id || ''}`
+    
     // Handle different feed types
     switch (feed) {
       case 'hot':
@@ -102,12 +108,17 @@ export async function GET(request) {
       userVote: userVotes[post._id.toString()] || null
     }))
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       posts: postsWithVotes,
       hasMore,
       page,
       totalPages: Math.ceil(await Post.countDocuments(query) / limit)
     })
+    
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59')
+    
+    return response
 
   } catch (error) {
     console.error('Error fetching posts:', error)

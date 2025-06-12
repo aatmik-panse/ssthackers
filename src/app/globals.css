@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* beasties:include start */
 @layer base {
   :root {
     /* Simple black and white color scheme with darker blacks */
@@ -64,8 +65,10 @@
     @apply bg-background text-foreground;
   }
 }
+/* beasties:include end */
 
 /* Custom styles for SST Hackers */
+/* beasties:include */
 .vote-button {
   @apply transition-colors duration-200 hover:bg-accent rounded p-1;
 }
@@ -73,11 +76,7 @@
 .vote-button.voted {
   @apply text-primary;
 }
-
-.comment-thread {
-  @apply border-l border-border ml-4 pl-4;
-}
-
+/* beasties:include */
 .post-card {
   @apply transition-all duration-200 hover:shadow-sm;
 }
@@ -85,3 +84,9 @@
 .aura-points {
   @apply text-primary font-semibold;
 }
+
+/* beasties:exclude start */
+.comment-thread {
+  @apply border-l border-border ml-4 pl-4;
+}
+/* beasties:exclude end */

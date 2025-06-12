@@ -2,10 +2,16 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { SessionProvider } from '@/components/session-provider'
-import { Navbar } from '@/components/navbar'
-import { Toaster } from '@/components/ui/toaster'
+import dynamic from 'next/dynamic'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
+import { ToasterProvider } from '@/components/toaster-provider'
+
+// Dynamic import for Navbar
+const Navbar = dynamic(() => import('@/components/navbar').then(mod => mod.Navbar), {
+  ssr: true,
+  loading: () => <div className="h-16 bg-background border-b"></div>
+})
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -41,7 +47,7 @@ export default async function RootLayout({ children }) {
                 </div>
               </main>
             </div>
-            <Toaster />
+            <ToasterProvider />
           </ThemeProvider>
         </SessionProvider>
       </body>

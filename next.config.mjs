@@ -62,41 +62,42 @@ const nextConfig = {
     // Enable optimizeCss with Beasties
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    // Only include specific export files from these packages
   },
   
   // Improve image loading
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60, // Cache images for at least 60 seconds
-    domains: [
-      'api.dicebear.com',    // For placeholder avatars
-      'avatars.githubusercontent.com', // For GitHub avatars
-      'lh3.googleusercontent.com',    // For Google avatars
-      'robohash.org',        // For RoboHash avatars
-      'gravatar.com',        // For Gravatar
-      'i.pravatar.cc',       // For Pravatar
-      'res.cloudinary.com',  // For Cloudinary
-      'images.unsplash.com', // For Unsplash
-      'imgur.com',           // For Imgur
-      'i.imgur.com',         // For Imgur
-      'cdn.jsdelivr.net',    // For jsDelivr
-      'avatar.iran.liara.run'
+    remotePatterns: [
+      { protocol: 'https', hostname: 'api.dicebear.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'robohash.org' },
+      { protocol: 'https', hostname: 'gravatar.com' },
+      { protocol: 'https', hostname: 'i.pravatar.cc' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'imgur.com' },
+      { protocol: 'https', hostname: 'i.imgur.com' },
+      { protocol: 'https', hostname: 'cdn.jsdelivr.net' },
+      { protocol: 'https', hostname: 'avatar.iran.liara.run' },
     ],
   },
   
   // Cache and reduce server computation
   poweredByHeader: false,
   compress: true, // Enable gzip compression
-  
-  // Add webpack configuration
-  webpack: (config, { dev, isServer }) => {
+};
+
+// Only add webpack config when not using Turbopack
+if (process.env.NEXT_RUNTIME !== 'edge') {
+  nextConfig.webpack = (config, { dev, isServer }) => {
     // Only add Beasties plugin in production build
     if (!dev && !isServer) {
       config.plugins.push(createBeastiesPlugin());
     }
     return config;
-  },
-};
+  };
+}
 
 export default nextConfig;

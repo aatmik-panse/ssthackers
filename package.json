@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:email": "node scripts/test-email.js"
+    "test:email": "node scripts/test-email.js",
+    "cleanup": "node scripts/cleanup.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.0",

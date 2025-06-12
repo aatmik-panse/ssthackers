@@ -26,21 +26,25 @@ const VoteSchema = new mongoose.Schema({
 })
 
 // Compound indexes to prevent duplicate votes
-// Only index when post exists (for post votes)
+// Only index when post is an ObjectId (for post votes)
 VoteSchema.index(
   { user: 1, post: 1 }, 
   { 
     unique: true, 
-    partialFilterExpression: { post: { $exists: true } }
+    partialFilterExpression: { 
+      post: { $type: "objectId" } 
+    }
   }
 )
 
-// Only index when comment exists (for comment votes)
+// Only index when comment is an ObjectId (for comment votes)
 VoteSchema.index(
   { user: 1, comment: 1 }, 
   { 
     unique: true, 
-    partialFilterExpression: { comment: { $exists: true } }
+    partialFilterExpression: { 
+      comment: { $type: "objectId" } 
+    }
   }
 )
 

@@ -79,6 +79,13 @@ export async function POST(request, { params }) {
           voteChange = type === 'upvote' ? 2 : -2 // From down to up or vice versa
           auraChange = type === 'upvote' ? 2 : -2
           newUserVote = type
+        } else {
+          // Same vote type - this means user is trying to vote again with same type
+          // This should be treated as removing the vote
+          await Vote.findByIdAndDelete(existingVote._id)
+          voteChange = existingVote.type === 'upvote' ? -1 : 1
+          auraChange = existingVote.type === 'upvote' ? -2 : 0
+          newUserVote = null
         }
       } else {
         // Create new vote
@@ -102,8 +109,8 @@ export async function POST(request, { params }) {
       { new: true }
     )
 
-    // Update author's aura points
-    if (auraChange !== 0) {
+    // Update author's aura points (only if comment has a registered author)
+    if (auraChange !== 0 && comment.author && comment.author._id) {
       await User.findByIdAndUpdate(
         comment.author._id,
         { $inc: { auraPoints: Math.max(-comment.author.auraPoints, auraChange) } } // Prevent negative aura

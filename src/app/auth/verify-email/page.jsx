@@ -186,6 +186,11 @@ export default function VerifyEmailPage() {
                   {resendMessage && (
                     <p className={`mt-2 text-sm text-center ${resendMessage.includes('sent') ? 'text-green-500' : 'text-red-500'}`}>
                       {resendMessage}
+                      {resendMessage.includes('sent') && (
+                        <span className="block mt-1 text-muted-foreground">
+                          If you don't see it in your inbox, please check your spam or junk folder.
+                        </span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -198,7 +203,7 @@ export default function VerifyEmailPage() {
               <p className="text-center">
                 {session?.user?.isEmailVerified 
                   ? 'Your email is already verified.'
-                  : 'Please check your email for a verification link or request a new one below.'}
+                  : 'Please check your email for a verification link. If you don\'t see it in your inbox, please check your spam or junk folder, or request a new verification email below.'}
               </p>
               
               {!session?.user?.isEmailVerified && session?.user && (
@@ -220,6 +225,11 @@ export default function VerifyEmailPage() {
                   {resendMessage && (
                     <p className={`mt-2 text-sm text-center ${resendMessage.includes('sent') ? 'text-green-500' : 'text-red-500'}`}>
                       {resendMessage}
+                      {resendMessage.includes('sent') && (
+                        <span className="block mt-1 text-muted-foreground">
+                          If you don't see it in your inbox, please check your spam or junk folder.
+                        </span>
+                      )}
                     </p>
                   )}
                 </div>

@@ -113,6 +113,24 @@ export async function POST(request, { params }) {
     
     // Handle duplicate vote error
     if (error.code === 11000) {
+      // Try to find and return the existing vote
+      try {
+        const existingVote = await Vote.findOne({
+          user: session.user.id,
+          post: postId
+        })
+        
+        if (existingVote) {
+          return NextResponse.json({
+            votes: post.votes,
+            userVote: existingVote.type,
+            message: 'Vote already exists'
+          })
+        }
+      } catch (findError) {
+        console.error('Error finding existing vote:', findError)
+      }
+      
       return NextResponse.json(
         { error: 'You have already voted on this post' },
         { status: 400 }

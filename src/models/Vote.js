@@ -26,8 +26,23 @@ const VoteSchema = new mongoose.Schema({
 })
 
 // Compound indexes to prevent duplicate votes
-VoteSchema.index({ user: 1, post: 1 }, { unique: true, sparse: true })
-VoteSchema.index({ user: 1, comment: 1 }, { unique: true, sparse: true })
+// Only index when post exists (for post votes)
+VoteSchema.index(
+  { user: 1, post: 1 }, 
+  { 
+    unique: true, 
+    partialFilterExpression: { post: { $exists: true } }
+  }
+)
+
+// Only index when comment exists (for comment votes)
+VoteSchema.index(
+  { user: 1, comment: 1 }, 
+  { 
+    unique: true, 
+    partialFilterExpression: { comment: { $exists: true } }
+  }
+)
 
 // Ensure either post or comment is specified, but not both
 VoteSchema.pre('save', function(next) {

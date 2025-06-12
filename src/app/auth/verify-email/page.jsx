@@ -236,7 +236,7 @@ export default function VerifyEmailPage() {
         <CardFooter className="flex justify-center">
           {(status === 'success' || status === 'already_verified') ? (
             <Button asChild>
-              <Link href="/">Go to Homepage</Link>
+              <Link href="/auth/signin">Go to Sign In</Link>
             </Button>
           ) : (
             <Button variant="outline" asChild>

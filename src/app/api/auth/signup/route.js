@@ -94,16 +94,36 @@ export async function POST(request) {
 
     await user.save()
 
-    // Check for pending posts for this email
+    // Handle both approaches for backward compatibility
+    
+    // 1. Check for posts with matching targetUserEmail
+    const adminCreatedPosts = await Post.find({
+      targetUserEmail: email.toLowerCase()
+    })
+    
+    let createdPosts = 0
+    let auraPointsAwarded = 0
+    
+    // Reassign admin-created posts to the new user
+    if (adminCreatedPosts.length > 0) {
+      for (const post of adminCreatedPosts) {
+        // Update the post author to the new user
+        post.author = user._id
+        post.targetUserEmail = null // Clear the email as it's now assigned
+        await post.save()
+        
+        createdPosts++
+        auraPointsAwarded += 3
+      }
+    }
+    
+    // 2. For backward compatibility: Check for pending posts in PendingUserPost collection
     const pendingPosts = await PendingUserPost.find({
       email: email.toLowerCase(),
       processed: false
     })
     
     // If there are pending posts, create them for the user and award points
-    let createdPosts = 0
-    let auraPointsAwarded = 0
-    
     if (pendingPosts.length > 0) {
       for (const pendingPost of pendingPosts) {
         // Create the post
@@ -128,12 +148,12 @@ export async function POST(request) {
         createdPosts++
         auraPointsAwarded += 3
       }
-      
-      // Award aura points for all created posts
-      if (auraPointsAwarded > 0) {
-        user.auraPoints += auraPointsAwarded
-        await user.save()
-      }
+    }
+    
+    // Award aura points for all assigned posts
+    if (auraPointsAwarded > 0) {
+      user.auraPoints += auraPointsAwarded
+      await user.save()
     }
 
     // Create verification token

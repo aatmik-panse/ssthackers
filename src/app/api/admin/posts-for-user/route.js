@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
 import Post from '@/models/Post'
 import User from '@/models/User'
-import PendingUserPost from '@/models/PendingUserPost'
 import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 export async function POST(request) {
@@ -54,53 +53,42 @@ export async function POST(request) {
     // Find user by email
     const user = await User.findOne({ email: userEmail.toLowerCase() })
     
-    // If user exists, create post directly for them and award points
+    // Create new post regardless of whether the user exists
+    const post = new Post({
+      title: title.trim(),
+      url: url?.trim() || null,
+      body: body?.trim() || null,
+      // If user exists, use their ID; otherwise use the admin's ID temporarily
+      author: user ? user._id : session.user.id,
+      createdByAdmin: true,
+      adminCreator: session.user.id,
+      // Store the target email if user doesn't exist yet
+      targetUserEmail: user ? null : userEmail.toLowerCase()
+    })
+    
+    await post.save()
+    
+    // If user exists, award them points
     if (user) {
-      // Create new post
-      const post = new Post({
-        title: title.trim(),
-        url: url?.trim() || null,
-        body: body?.trim() || null,
-        author: user._id,
-        createdByAdmin: true,
-        adminCreator: session.user.id
-      })
-      
-      await post.save()
-      
-      // Award 3 aura points to the user
       await User.findByIdAndUpdate(
         user._id,
         { $inc: { auraPoints: 3 } }
       )
       
-      // Return the created post
+      // Return the created post with user info
       return NextResponse.json({
         success: true,
         post: await Post.findById(post._id).populate('author', 'username email auraPoints'),
         userExists: true,
         username: user.username
       }, { status: 201 })
-    } 
-    // If user doesn't exist, create a pending post
-    else {
-      // Create pending user post
-      const pendingPost = new PendingUserPost({
-        email: userEmail.toLowerCase(),
-        title: title.trim(),
-        url: url?.trim() || null,
-        body: body?.trim() || null,
-        adminCreator: session.user.id
-      })
-      
-      await pendingPost.save()
-      
-      // Return the pending post
+    } else {
+      // Return the post with admin info (will be reassigned later)
       return NextResponse.json({
         success: true,
-        pendingPost,
+        post: await Post.findById(post._id).populate('author', 'username email auraPoints'),
         userExists: false,
-        message: "Post will be assigned when user signs up"
+        message: "Post created and will be reassigned when user signs up"
       }, { status: 201 })
     }
   } catch (error) {

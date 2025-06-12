@@ -71,6 +71,12 @@ const PostSchema = new mongoose.Schema({
     ref: 'User',
     default: null
   },
+  targetUserEmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    default: null
+  },
   pendingPostId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'PendingUserPost',
@@ -88,6 +94,7 @@ PostSchema.index({ author: 1 })
 PostSchema.index({ isDeleted: 1 })
 PostSchema.index({ createdByAdmin: 1 })
 PostSchema.index({ flagCount: -1 })
+PostSchema.index({ targetUserEmail: 1 })
 
 // Virtual for post type
 PostSchema.virtual('type').get(function() {

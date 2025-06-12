@@ -74,7 +74,31 @@ export function CommentItem({
   }
   
   const handleDelete = async () => {
-    if (onDelete) onDelete(comment._id)
+    if (!confirm('Are you sure you want to delete this comment?')) return
+    
+    try {
+      const response = await fetch(`/api/comments/${comment._id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete comment')
+      }
+      
+      if (onDelete) onDelete(comment._id)
+      
+      toast({
+        title: "Comment deleted",
+        description: "Your comment has been deleted successfully",
+      })
+    } catch (error) {
+      console.error('Error deleting comment:', error)
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete comment",
+        variant: "destructive",
+      })
+    }
   }
   
   // This is now handled by our FlagContentDialog component
@@ -111,7 +135,7 @@ export function CommentItem({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: replyContent,
+          body: replyContent,
           parentId: comment._id,
         }),
       })
@@ -129,7 +153,7 @@ export function CommentItem({
       
       // Call parent handler if provided
       if (onReply) {
-        onReply(newComment)
+        onReply(comment._id, newComment)
       }
       
       toast({

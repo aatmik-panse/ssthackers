@@ -53,18 +53,18 @@ export function CommentList({ postId }) {
       
       const payload = {
         body: newComment.trim(),
-        postId: postId,
         parentId: replyingTo
       }
       
-      const response = await fetch('/api/comments', {
+      const response = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
       
       if (!response.ok) {
-        throw new Error('Failed to submit comment')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to submit comment')
       }
       
       const newCommentData = await response.json()
@@ -85,6 +85,7 @@ export function CommentList({ postId }) {
       setReplyingTo(null)
     } catch (error) {
       console.error('Error submitting comment:', error)
+      setError(error.message || 'Failed to submit comment')
     } finally {
       setSubmitting(false)
     }
@@ -139,6 +140,7 @@ export function CommentList({ postId }) {
       setEditingComment(null)
     } catch (error) {
       console.error('Error updating comment:', error)
+      setError(error.message || 'Failed to update comment')
     } finally {
       setSubmitting(false)
     }
@@ -180,19 +182,28 @@ export function CommentList({ postId }) {
       })
     } catch (error) {
       console.error('Error deleting comment:', error)
+      setError(error.message || 'Failed to delete comment')
     }
   }
   
   // Handle reply button click
-  const handleReply = (parentId) => {
-    setReplyingTo(parentId)
-    setEditingComment(null)
-    setNewComment('')
-    
-    // Focus the textarea
-    setTimeout(() => {
-      document.getElementById('comment-textarea')?.focus()
-    }, 0)
+  const handleReply = (parentId, newReply = null) => {
+    if (newReply) {
+      // This is a new reply being added from a nested comment
+      setComments(prevComments => {
+        return addReplyToComments(prevComments, parentId, newReply)
+      })
+    } else {
+      // This is setting up to reply
+      setReplyingTo(parentId)
+      setEditingComment(null)
+      setNewComment('')
+      
+      // Focus the textarea
+      setTimeout(() => {
+        document.getElementById('comment-textarea')?.focus()
+      }, 0)
+    }
   }
   
   // Handle edit button click
@@ -255,10 +266,18 @@ export function CommentList({ postId }) {
                 ? 'Edit your comment' 
                 : 'Leave a comment'}
           </h3>
+          {error && (
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">
+              {error}
+            </div>
+          )}
           <Textarea
             id="comment-textarea"
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
+            onChange={(e) => {
+              setNewComment(e.target.value)
+              if (error) setError(null) // Clear error when user starts typing
+            }}
             placeholder="What are your thoughts?"
             className="resize-none min-h-[100px]"
           />

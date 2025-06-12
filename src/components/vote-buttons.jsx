@@ -15,7 +15,8 @@ export function VoteButtons({
   onVoteUpdate,
   disabled = false,
   size = 'default', // 'default' or 'sm'
-  redirectToSignIn = false
+  redirectToSignIn = false,
+  vertical = true // 'true' for vertical layout, 'false' for horizontal
 }) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -62,7 +63,10 @@ export function VoteButtons({
   const buttonSize = size === 'sm' ? 'icon' : 'icon'
 
   return (
-    <div className="flex flex-col items-center space-y-1">
+    <div className={cn(
+      "flex items-center",
+      vertical ? "flex-col space-y-1" : "flex-row space-x-1"
+    )}>
       <Button
         variant="ghost"
         size={buttonSize}
@@ -78,7 +82,8 @@ export function VoteButtons({
       </Button>
 
       <span className={cn(
-        "text-xs font-medium min-w-[20px] text-center",
+        "text-xs font-medium text-center",
+        vertical ? "min-w-[20px]" : "min-w-[16px] px-1",
         votes > 0 && "text-orange-600",
         votes < 0 && "text-blue-600"
       )}>

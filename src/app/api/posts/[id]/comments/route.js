@@ -109,7 +109,7 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -163,6 +163,9 @@ export async function POST(request, { params }) {
     // Create and save the comment
     const comment = new Comment(commentData)
     await comment.save()
+    
+    // Increment comment count on the post
+    await Post.findByIdAndUpdate(id, { $inc: { commentCount: 1 } })
     
     // Award 1 aura point to the user for commenting
     await User.findByIdAndUpdate(

@@ -178,6 +178,7 @@ export function LeaderboardClient() {
         <p className="mb-3">Aura points are earned through positive contributions to the SST Hackers community:</p>
         <ul className="list-disc list-inside space-y-1">
           <li>Post upvotes: +5 Aura to the author</li>
+          <li>Posting gives the author +3 Aura points</li>
           <li>Comment upvotes: +1 Aura to the author</li>
           <li>Other contributions as determined by community guidelines</li>
         </ul>

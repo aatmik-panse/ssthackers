@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
     // If post is deleted, only return minimal info
     if (post.isDeleted) {
       const isAdmin = session?.user?.isAdmin
-      const isAuthor = session?.user?.id === post.author._id.toString()
+      const isAuthor = post.author && session?.user?.id === post.author._id.toString()
       
       if (!isAdmin && !isAuthor) {
         return NextResponse.json(
@@ -102,7 +102,7 @@ export async function PUT(request, { params }) {
     }
     
     // Check if user is author or admin
-    const isAuthor = session.user.id === post.author._id.toString()
+    const isAuthor = post.author && session.user.id === post.author._id.toString()
     const isAdmin = session.user.isAdmin
     
     if (!isAuthor && !isAdmin) {
@@ -190,10 +190,11 @@ export async function DELETE(request, { params }) {
     }
     
     // Check if user is author or admin
-    const isAuthor = session.user.id === post.author._id.toString()
+    const isAuthor = post.author && session.user.id === post.author._id.toString()
     const isAdmin = session.user.isAdmin
     
-    if (!isAuthor && !isAdmin) {
+    // Only admins can delete posts with null authors
+    if ((!post.author && !isAdmin) || (!isAuthor && !isAdmin)) {
       return NextResponse.json(
         { error: 'Not authorized to delete this post' },
         { status: 403 }
@@ -208,8 +209,8 @@ export async function DELETE(request, { params }) {
     await post.save();
     
     // Deduct 3 aura points from the author if post is deleted
-    // Only deduct points if the post wasn't already deleted
-    if (!wasAlreadyDeleted) {
+    // Only deduct points if the post wasn't already deleted and has an author
+    if (!wasAlreadyDeleted && post.author) {
       await User.findByIdAndUpdate(
         post.author._id,
         { $inc: { auraPoints: -3 } }

@@ -27,8 +27,8 @@ export async function GET(request) {
 
     let query = { isDeleted: false }
     
-    // Only show posts with authors (filter out posts waiting to be assigned)
-    query.author = { $ne: null }
+    // Remove the filter that excludes posts with null authors
+    // Now show all posts including those waiting to be assigned
     
     let sort = {}
 

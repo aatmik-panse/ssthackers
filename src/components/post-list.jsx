@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { UserAvatar } from '@/components/user-avatar'
 import { VoteButtons } from '@/components/vote-buttons'
 import { formatTimeAgo, extractDomain } from '@/lib/utils'
-import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon } from 'lucide-react'
+import { ArrowUpIcon, ArrowDownIcon, MessageSquareIcon, ExternalLinkIcon, User, Mail } from 'lucide-react'
 
 export function PostList({ feed = 'hot', userId, limit = 10 }) {
   const [posts, setPosts] = useState([])
@@ -189,6 +189,8 @@ function PostCard({ post, onVoteUpdate }) {
   const domain = post.url ? extractDomain(post.url) : null
   const voteCount = post.votes || 0
   
+  const hasAuthor = post.author && post.author._id
+  
   const handleVoteClick = () => {
     if (!session) {
       router.push('/auth/signin?callbackUrl=/')
@@ -238,15 +240,29 @@ function PostCard({ post, onVoteUpdate }) {
               </div>
               
               <div className="flex items-center text-xs text-muted-foreground gap-4">
-                <div className="flex items-center gap-1.5">
-                  <UserAvatar user={post.author} size="xs" />
-                  <Link 
-                    href={`/user/${post.author?.username}`}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    {post.author?.username || post.author?.name}
-                  </Link>
-                </div>
+                {hasAuthor ? (
+                  <div className="flex items-center gap-1.5">
+                    <UserAvatar user={post.author} size="xs" />
+                    <Link 
+                      href={`/user/${post.author.username}`}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {post.author.username || post.author.name}
+                    </Link>
+                  </div>
+                ) : post.targetUserEmail ? (
+                  <div className="flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-amber-500" />
+                    <span className="text-amber-600">
+                      {post.targetUserEmail} (waiting for signup)
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" />
+                    <span>Unknown user</span>
+                  </div>
+                )}
                 
                 <div>{formatTimeAgo(post.createdAt)}</div>
                 

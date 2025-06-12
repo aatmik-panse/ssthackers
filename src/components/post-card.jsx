@@ -16,7 +16,8 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  User
+  User,
+  Mail
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -36,7 +37,8 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [flagDialogOpen, setFlagDialogOpen] = useState(false)
 
-  const isAuthor = session?.user?.id === post.author._id
+  const hasAuthor = post.author && post.author._id
+  const isAuthor = hasAuthor && session?.user?.id === post.author._id
   const canEdit = isAuthor || session?.user?.isAdmin
 
   const handleVoteUpdate = (newVotes, newUserVote) => {
@@ -208,15 +210,29 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                 </div>
 
               <div className="flex items-center flex-wrap gap-4 text-sm text-muted-foreground mt-3 pt-3 border-t">
-                <span className="flex items-center gap-1.5">
-                  <UserAvatar user={post.author} size="xs" />
-                  <Link 
-                    href={`/user/${post.author.username}`}
-                    className="hover:text-foreground transition-colors font-medium"
-                  >
-                    {post.author.username}
-                  </Link>
-                </span>
+                {hasAuthor ? (
+                  <span className="flex items-center gap-1.5">
+                    <UserAvatar user={post.author} size="xs" />
+                    <Link 
+                      href={`/user/${post.author.username}`}
+                      className="hover:text-foreground transition-colors font-medium"
+                    >
+                      {post.author.username}
+                    </Link>
+                  </span>
+                ) : post.targetUserEmail ? (
+                  <span className="flex items-center gap-1.5">
+                    <Mail className="h-4 w-4 text-amber-500" />
+                    <span className="text-amber-600 font-medium">
+                      {post.targetUserEmail} (waiting for signup)
+                    </span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <User className="h-4 w-4" />
+                    <span>Unknown user</span>
+                  </span>
+                )}
                 <span>{formatTimeAgo(post.createdAt)}</span>
                 <Link 
                   href={`/posts/${post._id}`}

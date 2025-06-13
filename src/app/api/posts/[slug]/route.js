@@ -9,10 +9,10 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 export async function GET(request, { params }) {
   try {
     // Properly await params
-    const { id } = await params
-    if (!id) {
+    const { slug } = await params
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
@@ -22,9 +22,15 @@ export async function GET(request, { params }) {
     // Get session for user vote
     const session = await getServerSession(authOptions)
     
-    // Find post by ID and populate author
-    const post = await Post.findById(id)
+    // Try to find post by slug first, then fallback to ID for backward compatibility
+    let post = await Post.findOne({ slug })
       .populate('author', 'username email auraPoints')
+    
+    // Fallback: if not found by slug, try by ID (for backward compatibility)
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug)
+        .populate('author', 'username email auraPoints')
+    }
     
     if (!post) {
       return NextResponse.json(
@@ -51,7 +57,7 @@ export async function GET(request, { params }) {
     if (session?.user?.id) {
       const vote = await Vote.findOne({
         user: session.user.id,
-        post: id
+        post: post._id
       })
       
       userVote = vote ? vote.type : null
@@ -81,18 +87,22 @@ export async function PUT(request, { params }) {
       )
     }
     
-    const { id } = await params
-    if (!id) {
+    const { slug } = await params
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
     
     await connectDB()
     
-    // Find post by ID
-    const post = await Post.findById(id).populate('author', '_id')
+    // Try to find post by slug first, then fallback to ID
+    let post = await Post.findOne({ slug }).populate('author', '_id')
+    
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug).populate('author', '_id')
+    }
     
     if (!post) {
       return NextResponse.json(
@@ -147,7 +157,7 @@ export async function PUT(request, { params }) {
     
     return NextResponse.json({
       success: true,
-      post: await Post.findById(id).populate('author', 'username email auraPoints')
+      post: await Post.findById(post._id).populate('author', 'username email auraPoints')
     })
     
   } catch (error) {
@@ -169,18 +179,22 @@ export async function DELETE(request, { params }) {
       )
     }
     
-    const { id } = await params
-    if (!id) {
+    const { slug } = await params
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
     
     await connectDB()
     
-    // Find post by ID
-    const post = await Post.findById(id).populate('author', '_id')
+    // Try to find post by slug first, then fallback to ID
+    let post = await Post.findOne({ slug }).populate('author', '_id')
+    
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug).populate('author', '_id')
+    }
     
     if (!post) {
       return NextResponse.json(

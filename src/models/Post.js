@@ -1,11 +1,37 @@
 import mongoose from 'mongoose'
 
+// Utility function to generate slug from title
+function generateSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim()
+    .substring(0, 50) // Limit to 50 characters
+}
+
+// Utility function to generate random string
+function generateRandomString(length = 6) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 const PostSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
     trim: true,
     maxlength: 300
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true
   },
   url: {
     type: String,
@@ -116,8 +142,29 @@ PostSchema.virtual('domain').get(function() {
 // Ensure virtual fields are serialized
 PostSchema.set('toJSON', { virtuals: true })
 
-// Pre-save hook to calculate hot score
-PostSchema.pre('save', function(next) {
+// Pre-save hook to generate slug and calculate hot score
+PostSchema.pre('save', async function(next) {
+  // Generate slug if new post or title changed
+  if (this.isNew || this.isModified('title')) {
+    const baseSlug = generateSlug(this.title)
+    let finalSlug = `${baseSlug}-${generateRandomString()}`
+    
+    // Ensure uniqueness (in rare case of collision)
+    let counter = 0
+    while (await mongoose.models.Post.findOne({ slug: finalSlug, _id: { $ne: this._id } })) {
+      finalSlug = `${baseSlug}-${generateRandomString()}`
+      counter++
+      if (counter > 5) {
+        // After 5 attempts, add timestamp to ensure uniqueness
+        finalSlug = `${baseSlug}-${Date.now().toString(36)}`
+        break
+      }
+    }
+    
+    this.slug = finalSlug
+  }
+  
+  // Calculate hot score
   if (this.isModified('votes') || this.isModified('commentCount') || this.isNew) {
     const ageInHours = (Date.now() - this.createdAt.getTime()) / (1000 * 60 * 60)
     const gravity = 1.8

@@ -52,10 +52,10 @@ function buildCommentTree(comments, parentId = null) {
 
 export async function GET(request, { params }) {
   try {
-    const { id } = await params
-    if (!id) {
+    const { slug } = await params
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
@@ -65,9 +65,23 @@ export async function GET(request, { params }) {
     // Get session for user votes
     const session = await getServerSession(authOptions)
     
+    // Try to find post by slug first, then fallback to ID
+    let post = await Post.findOne({ slug })
+    
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug)
+    }
+    
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      )
+    }
+    
     // Fetch all comments for the post
     const comments = await Comment.find({ 
-      post: id,
+      post: post._id,
       isDeleted: { $ne: true } // Exclude explicitly deleted comments 
     })
     .populate('author', 'username name email image')
@@ -117,15 +131,29 @@ export async function POST(request, { params }) {
       )
     }
     
-    const { id } = await params
-    if (!id) {
+    const { slug } = await params
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
     
     await connectDB()
+    
+    // Try to find post by slug first, then fallback to ID
+    let post = await Post.findOne({ slug })
+    
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug)
+    }
+    
+    if (!post) {
+      return NextResponse.json(
+        { error: 'Post not found' },
+        { status: 404 }
+      )
+    }
     
     const data = await request.json()
     const { body, parentId } = data
@@ -141,7 +169,7 @@ export async function POST(request, { params }) {
     const commentData = {
       body: body.trim(),
       author: session.user.id,
-      post: id
+      post: post._id
     }
     
     // If this is a reply, set parent and fetch its depth
@@ -165,7 +193,7 @@ export async function POST(request, { params }) {
     await comment.save()
     
     // Increment comment count on the post
-    await Post.findByIdAndUpdate(id, { $inc: { commentCount: 1 } })
+    await Post.findByIdAndUpdate(post._id, { $inc: { commentCount: 1 } })
     
     // Award 1 aura point to the user for commenting
     await User.findByIdAndUpdate(

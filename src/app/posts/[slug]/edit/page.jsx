@@ -28,9 +28,9 @@ export default function EditPostPage() {
   // Check authentication
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(`/posts/${params.id}/edit`))
+      router.push('/auth/signin?callbackUrl=' + encodeURIComponent(`/posts/${params.slug}/edit`))
     }
-  }, [status, router, params.id])
+  }, [status, router, params.slug])
   
   // Fetch post data
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function EditPostPage() {
       try {
         setLoading(true)
         
-        const response = await fetch(`/api/posts/${params.id}`)
+        const response = await fetch(`/api/posts/${params.slug}`)
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -51,7 +51,7 @@ export default function EditPostPage() {
         
         // Check if user is authorized to edit
         if (session?.user?.id !== data.author._id && !session?.user?.isAdmin) {
-          router.push(`/posts/${params.id}`)
+          router.push(`/posts/${params.slug}`)
           return
         }
         
@@ -70,10 +70,10 @@ export default function EditPostPage() {
       }
     }
     
-    if (params.id && session?.user?.id) {
+    if (params.slug && session?.user?.id) {
       fetchPost()
     }
-  }, [params.id, session?.user?.id, router])
+  }, [params.slug, session?.user?.id, router])
   
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -105,7 +105,7 @@ export default function EditPostPage() {
     try {
       setSaving(true)
       
-      const response = await fetch(`/api/posts/${params.id}`, {
+      const response = await fetch(`/api/posts/${params.slug}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -118,7 +118,7 @@ export default function EditPostPage() {
         throw new Error(errorData.error || 'Failed to update post')
       }
       
-      router.push(`/posts/${params.id}`)
+      router.push(`/posts/${params.slug}`)
     } catch (err) {
       setError(err.message || 'Failed to update post')
     } finally {
@@ -151,7 +151,7 @@ export default function EditPostPage() {
           <p className="text-destructive">{error}</p>
           <Button 
             className="mt-4"
-            onClick={() => router.push(`/posts/${params.id}`)}
+            onClick={() => router.push(`/posts/${params.slug}`)}
           >
             Back to Post
           </Button>
@@ -226,7 +226,7 @@ export default function EditPostPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push(`/posts/${params.id}`)}
+              onClick={() => router.push(`/posts/${params.slug}`)}
               disabled={saving}
             >
               Cancel

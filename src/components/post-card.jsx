@@ -66,7 +66,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
   
   const handleShare = async () => {
     try {
-      const postUrl = `${window.location.origin}/posts/${post._id}`
+      const postUrl = `${window.location.origin}/posts/${post.slug || post._id}`
       await navigator.clipboard.writeText(postUrl)
       toast({
         title: "Link copied!",
@@ -76,7 +76,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
       // If clipboard fails, show the URL in a toast
       toast({
         title: "Share link",
-        description: `${window.location.origin}/posts/${post._id}`,
+        description: `${window.location.origin}/posts/${post.slug || post._id}`,
         duration: 5000,
       })
     }
@@ -132,7 +132,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
               )}
               <VoteButtons
                 type="post"
-                itemId={post._id}
+                itemId={post.slug || post._id}
                 votes={votes}
                 userVote={userVote}
                 onVoteUpdate={handleVoteUpdate}
@@ -158,7 +158,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                       </a>
                     ) : (
                       <Link 
-                        href={`/posts/${post._id}`}
+                        href={`/posts/${post.slug || post._id}`}
                         className="hover:text-primary transition-colors flex items-center gap-1"
                       >
                         {post.title}
@@ -201,7 +201,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                   {canEdit && (
                     <>
                       {isAuthor && (
-                        <Link href={`/posts/${post._id}/edit`}>
+                        <Link href={`/posts/${post.slug || post._id}/edit`}>
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -263,7 +263,7 @@ export function PostCard({ post, rank, showBody = false, onPostDeleted }) {
                 )}
                 <span>{formatTimeAgo(post.createdAt)}</span>
                 <Link 
-                  href={`/posts/${post._id}`}
+                  href={`/posts/${post.slug || post._id}`}
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
                 >
                   <MessageCircle className="h-3 w-3" />

@@ -9,7 +9,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 export async function POST(request, { params }) {
   // Define variables that need to be accessible in both try and catch blocks
   let session;
-  let postId;
+  let slug;
   let type;
   let post;
   
@@ -23,11 +23,11 @@ export async function POST(request, { params }) {
     }
     
     // Properly await params
-    const { id } = await params
-    postId = id
-    if (!postId) {
+    const { slug: paramSlug } = await params
+    slug = paramSlug
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: 'Post slug is required' },
         { status: 400 }
       )
     }
@@ -45,8 +45,13 @@ export async function POST(request, { params }) {
       )
     }
     
-    // Check if post exists
-    post = await Post.findById(postId).populate('author', 'auraPoints')
+    // Try to find post by slug first, then fallback to ID
+    post = await Post.findOne({ slug }).populate('author', 'auraPoints')
+    
+    if (!post && slug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(slug).populate('author', 'auraPoints')
+    }
+    
     if (!post) {
       return NextResponse.json(
         { error: 'Post not found' },
@@ -57,7 +62,7 @@ export async function POST(request, { params }) {
     // Check for existing vote
     const existingVote = await Vote.findOne({
       user: session.user.id,
-      post: postId
+      post: post._id
     })
     
     let voteChange = 0
@@ -91,7 +96,7 @@ export async function POST(request, { params }) {
         // Create new vote
         const newVote = new Vote({
           user: session.user.id,
-          post: postId,
+          post: post._id,
           type
         })
         await newVote.save()
@@ -104,7 +109,7 @@ export async function POST(request, { params }) {
 
     // Update post vote count
     const updatedPost = await Post.findByIdAndUpdate(
-      postId,
+      post._id,
       { $inc: { votes: voteChange } },
       { new: true }
     )
@@ -131,7 +136,7 @@ export async function POST(request, { params }) {
       try {
         const existingVote = await Vote.findOne({
           user: session.user.id,
-          post: postId
+          post: post._id
         })
         
         if (existingVote) {
@@ -150,7 +155,7 @@ export async function POST(request, { params }) {
           // Update post vote count if needed
           if (voteChange !== 0) {
             await Post.findByIdAndUpdate(
-              postId,
+              post._id,
               { $inc: { votes: voteChange } },
               { new: true }
             );
@@ -161,7 +166,7 @@ export async function POST(request, { params }) {
           }
           
           // Get the updated post
-          const updatedPost = await Post.findById(postId);
+          const updatedPost = await Post.findById(post._id);
           
           return NextResponse.json({
             votes: updatedPost.votes,

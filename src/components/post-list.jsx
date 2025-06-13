@@ -201,7 +201,7 @@ function PostCard({ post, onVoteUpdate }) {
   
   const handleShare = async () => {
     try {
-      const postUrl = `${window.location.origin}/posts/${post._id}`
+      const postUrl = `${window.location.origin}/posts/${post.slug || post._id}`
       await navigator.clipboard.writeText(postUrl)
       toast({
         title: "Link copied!",
@@ -211,7 +211,7 @@ function PostCard({ post, onVoteUpdate }) {
       // If clipboard fails, show the URL in a toast
       toast({
         title: "Share link",
-        description: `${window.location.origin}/posts/${post._id}`,
+        description: `${window.location.origin}/posts/${post.slug || post._id}`,
         duration: 5000,
       })
     }
@@ -225,7 +225,7 @@ function PostCard({ post, onVoteUpdate }) {
           <div className="w-14 sm:w-16 bg-muted/20 flex flex-col items-center justify-center py-4 gap-1">
             <VoteButtons
               type="post"
-              itemId={post._id}
+              itemId={post.slug || post._id}
               votes={voteCount}
               userVote={post.userVote}
               onVoteUpdate={onVoteUpdate}
@@ -241,7 +241,7 @@ function PostCard({ post, onVoteUpdate }) {
               <div>
                 <h3 className="font-semibold text-sm sm:text-base leading-snug mb-1">
                   <Link 
-                    href={`/posts/${post._id}`} 
+                    href={`/posts/${post.slug || post._id}`} 
                     className="hover:text-primary transition-colors flex items-center gap-1"
                   >
                     {post.title}
@@ -294,7 +294,7 @@ function PostCard({ post, onVoteUpdate }) {
                   <span>{formatTimeAgo(post.createdAt)}</span>
                   
                   <Link 
-                    href={`/posts/${post._id}`}
+                    href={`/posts/${post.slug || post._id}`}
                     className="flex items-center gap-1 hover:text-foreground transition-colors"
                   >
                     <MessageSquareIcon className="h-3 w-3" />

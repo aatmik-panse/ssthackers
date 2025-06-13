@@ -19,7 +19,7 @@ export default function PostDetailPage() {
       try {
         setLoading(true)
         
-        const response = await fetch(`/api/posts/${params.id}`)
+        const response = await fetch(`/api/posts/${params.slug}`)
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -39,10 +39,10 @@ export default function PostDetailPage() {
       }
     }
     
-    if (params.id) {
+    if (params.slug) {
       fetchPost()
     }
-  }, [params.id])
+  }, [params.slug])
   
   if (loading) {
     return (
@@ -95,7 +95,7 @@ export default function PostDetailPage() {
       
       <div className="mt-8">
         <h2 className="text-xl font-bold mb-6">Comments</h2>
-        <CommentList postId={post._id} />
+        <CommentList postId={post.slug || post._id} />
       </div>
     </div>
   )

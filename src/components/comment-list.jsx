@@ -114,25 +114,36 @@ export function CommentList({ postId }) {
     }
   };
 
-  // Helper function to recursively add a reply to nested comments
+  // Helper function to add a reply to the appropriate parent comment in the tree
   const addReplyToComments = (comments, parentId, newReply) => {
+    console.log(`addReplyToComments called with parentId: ${parentId}`);
+    console.log('New reply:', newReply);
+    
     return comments.map((comment) => {
       // Convert IDs to strings for consistent comparison
-      const commentId = typeof comment._id === 'object' ? comment._id.toString() : comment._id;
-      const targetParentId = typeof parentId === 'object' ? parentId.toString() : parentId;
+      const commentId = comment._id.toString();
+      const targetParentId = parentId.toString();
       
+      console.log(`Checking comment ${commentId} against target parent ${targetParentId}`);
+
       if (commentId === targetParentId) {
-        // Add the reply to this comment
-        return {
+        // Found the parent comment, add the reply
+        console.log(`Found parent comment ${commentId}, adding reply ${newReply._id}`);
+        const updatedComment = {
           ...comment,
-          replies: Array.isArray(comment.replies) ? [...comment.replies, newReply] : [newReply],
+          replies: [...(comment.replies || []), newReply],
         };
-      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0) {
+        console.log('Updated comment with new reply:', updatedComment);
+        return updatedComment;
+      } else if (comment.replies && comment.replies.length > 0) {
         // Check nested replies
-        return {
+        console.log(`Comment ${commentId} has ${comment.replies.length} replies, checking them`);
+        const updatedComment = {
           ...comment,
           replies: addReplyToComments(comment.replies, parentId, newReply),
         };
+        console.log(`Finished checking replies for ${commentId}`);
+        return updatedComment;
       }
       return comment;
     });

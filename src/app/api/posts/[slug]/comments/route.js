@@ -24,10 +24,9 @@ function buildCommentTree(comments, parentId = null, depth = 0) {
 
     if (comment.parent) {
       // Convert parent ID to string for consistent comparison
-      const parentIdStr =
-        typeof comment.parent === "object"
-          ? comment.parent.toString()
-          : comment.parent.toString();
+      const parentIdStr = typeof comment.parent === "object"
+        ? comment.parent.toString()
+        : comment.parent.toString();
       
       console.log(`Comment ${id} has parent ${parentIdStr}`);
 
@@ -45,23 +44,25 @@ function buildCommentTree(comments, parentId = null, depth = 0) {
   });
 
   // Second pass: find top-level comments and build tree recursively
+  const processedComments = [];
+  
   comments.forEach((comment) => {
-    // Check if this is a top-level comment (no parent) or a child of the current parent
+    // Convert IDs to strings for consistent comparison
+    const commentId = comment._id.toString();
     const commentParentId = comment.parent
-      ? typeof comment.parent === "object"
-        ? comment.parent.toString()
-        : comment.parent.toString()
+      ? (typeof comment.parent === "object" ? comment.parent.toString() : comment.parent.toString())
       : null;
-
-    if (
-      (parentId === null && !comment.parent) ||
-      (parentId !== null && commentParentId === parentId)
-    ) {
+    
+    // Check if this comment belongs at this level of the tree
+    const isTopLevel = parentId === null && !comment.parent;
+    const isChildOfCurrentParent = parentId !== null && commentParentId === parentId;
+    
+    if (isTopLevel || isChildOfCurrentParent) {
+      // Track that we've processed this comment
+      processedComments.push(commentId);
+      
       // Handle both Mongoose documents (with toJSON) and plain objects
-      const commentObj =
-        typeof comment.toJSON === "function"
-          ? comment.toJSON()
-          : { ...comment };
+      const commentObj = typeof comment.toJSON === "function" ? comment.toJSON() : { ...comment };
       
       // Ensure parent ID is preserved as a string
       if (commentObj.parent) {
@@ -69,16 +70,16 @@ function buildCommentTree(comments, parentId = null, depth = 0) {
       }
 
       // Add replies to this comment
-      const childComments = childrenMap[comment._id.toString()] || [];
-      console.log(`Comment ${comment._id.toString()} has ${childComments.length} child comments`);
+      const childComments = childrenMap[commentId] || [];
+      console.log(`Comment ${commentId} has ${childComments.length} child comments`);
       
       if (childComments.length > 0) {
         commentObj.replies = buildCommentTree(
           childComments,
-          comment._id.toString(),
+          commentId,
           depth + 1
         );
-        console.log(`Added ${commentObj.replies.length} replies to comment ${comment._id.toString()}`);
+        console.log(`Added ${commentObj.replies.length} replies to comment ${commentId}`);
       } else {
         commentObj.replies = [];
       }
@@ -124,6 +125,13 @@ export async function GET(request, { params }) {
     })
       .populate("author", "username name email image")
       .sort({ createdAt: 1 });
+      
+    console.log(`Found ${comments.length} total comments for post ${post._id}`);
+    
+    // Debug: Log all comments with their parent relationships
+    comments.forEach(comment => {
+      console.log(`Comment ID: ${comment._id}, Parent: ${comment.parent || 'null'}, Depth: ${comment.depth}`);
+    });
 
     // Get user votes if session exists
     let userVotes = {};

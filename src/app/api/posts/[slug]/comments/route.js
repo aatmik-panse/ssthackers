@@ -33,7 +33,8 @@ function buildCommentTree(comments, parentId = null) {
   comments.forEach(comment => {
     if ((parentId === null && !comment.parent) || 
         (parentId !== null && comment.parent && comment.parent.toString() === parentId)) {
-      const commentObj = comment.toJSON()
+      // Handle both Mongoose documents (with toJSON) and plain objects
+      const commentObj = typeof comment.toJSON === 'function' ? comment.toJSON() : {...comment}
       
       // Add replies to this comment
       const childComments = childrenMap[comment._id.toString()] || []

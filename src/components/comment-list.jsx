@@ -94,13 +94,17 @@ export function CommentList({ postId }) {
   // Helper function to recursively add a reply to nested comments
   const addReplyToComments = (comments, parentId, newReply) => {
     return comments.map((comment) => {
-      if (comment._id === parentId) {
+      // Convert IDs to strings for consistent comparison
+      const commentId = typeof comment._id === 'object' ? comment._id.toString() : comment._id;
+      const targetParentId = typeof parentId === 'object' ? parentId.toString() : parentId;
+      
+      if (commentId === targetParentId) {
         // Add the reply to this comment
         return {
           ...comment,
           replies: Array.isArray(comment.replies) ? [...comment.replies, newReply] : [newReply],
         };
-      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length) {
+      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0) {
         // Check nested replies
         return {
           ...comment,
@@ -149,9 +153,18 @@ export function CommentList({ postId }) {
   // Helper function to recursively update a comment in the nested structure
   const updateCommentInTree = (comments, updatedComment) => {
     return comments.map((comment) => {
-      if (comment._id === updatedComment._id) {
-        return { ...comment, ...updatedComment };
-      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length) {
+      // Convert IDs to strings for consistent comparison
+      const commentId = typeof comment._id === 'object' ? comment._id.toString() : comment._id;
+      const updatedId = typeof updatedComment._id === 'object' ? updatedComment._id.toString() : updatedComment._id;
+      
+      if (commentId === updatedId) {
+        // Preserve replies from the existing comment if updatedComment doesn't have them
+        const mergedComment = { ...comment, ...updatedComment };
+        if (!updatedComment.replies && comment.replies) {
+          mergedComment.replies = comment.replies;
+        }
+        return mergedComment;
+      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0) {
         return {
           ...comment,
           replies: updateCommentInTree(comment.replies, updatedComment),
@@ -190,8 +203,18 @@ export function CommentList({ postId }) {
   const handleReply = (parentId, newReply = null) => {
     if (newReply) {
       // This is a new reply being added from a nested comment
+      // Ensure parentId is a string for consistent comparison
+      const parentIdStr = typeof parentId === 'object' ? parentId.toString() : parentId;
+      
+      // Ensure newReply has the correct parent reference
+      const processedReply = {
+        ...newReply,
+        parent: parentIdStr,
+        replies: newReply.replies || []
+      };
+      
       setComments((prevComments) => {
-        return addReplyToComments(prevComments, parentId, newReply);
+        return addReplyToComments(prevComments, parentIdStr, processedReply);
       });
     } else {
       // This is setting up to reply

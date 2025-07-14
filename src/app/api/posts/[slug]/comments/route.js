@@ -53,6 +53,11 @@ function buildCommentTree(comments, parentId = null) {
         typeof comment.toJSON === "function"
           ? comment.toJSON()
           : { ...comment };
+      
+      // Ensure parent ID is preserved as a string
+      if (commentObj.parent) {
+        commentObj.parent = commentObj.parent.toString();
+      }
 
       // Add replies to this comment
       const childComments = childrenMap[comment._id.toString()] || [];
@@ -216,8 +221,19 @@ export async function POST(request, { params }) {
 
     // Populate author data
     await comment.populate("author", "username name email image");
+    
+    // Convert to plain object and ensure proper structure
+    const commentObj = comment.toJSON();
+    
+    // Ensure parent is a string if it exists
+    if (commentObj.parent) {
+      commentObj.parent = commentObj.parent.toString();
+    }
+    
+    // Initialize empty replies array
+    commentObj.replies = [];
 
-    return NextResponse.json(comment, { status: 201 });
+    return NextResponse.json(commentObj, { status: 201 });
   } catch (error) {
     console.error("Error creating comment:", error);
     return NextResponse.json(

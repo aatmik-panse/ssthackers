@@ -327,7 +327,7 @@ export function CommentItem({
       </div>
       
       {/* Nested replies */}
-      {isExpanded && comment.replies && comment.replies.length > 0 && (
+      {isExpanded && comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2 border-l-2 border-muted pl-4">
           {comment.replies.map(reply => (
             <CommentItem

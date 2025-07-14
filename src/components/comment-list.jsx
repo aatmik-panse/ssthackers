@@ -98,9 +98,9 @@ export function CommentList({ postId }) {
         // Add the reply to this comment
         return {
           ...comment,
-          replies: [...(comment.replies || []), newReply],
+          replies: Array.isArray(comment.replies) ? [...comment.replies, newReply] : [newReply],
         };
-      } else if (comment.replies && comment.replies.length) {
+      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length) {
         // Check nested replies
         return {
           ...comment,
@@ -151,7 +151,7 @@ export function CommentList({ postId }) {
     return comments.map((comment) => {
       if (comment._id === updatedComment._id) {
         return { ...comment, ...updatedComment };
-      } else if (comment.replies && comment.replies.length) {
+      } else if (comment.replies && Array.isArray(comment.replies) && comment.replies.length) {
         return {
           ...comment,
           replies: updateCommentInTree(comment.replies, updatedComment),

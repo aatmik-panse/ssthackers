@@ -101,15 +101,15 @@ export async function GET(request, { params }) {
       }, {})
     }
     
-    // Add user vote information and prepare for tree building
+    // Add user vote information to all comments
     const commentsWithVotes = comments.map(comment => {
       const commentObj = comment.toJSON()
       commentObj.userVote = userVotes[comment._id.toString()] || null
       return commentObj
     })
     
-    // Build comment tree
-    const commentTree = buildCommentTree(comments)
+    // Build comment tree using the comments with votes
+    const commentTree = buildCommentTree(commentsWithVotes)
     
     return NextResponse.json(commentTree)
   } catch (error) {

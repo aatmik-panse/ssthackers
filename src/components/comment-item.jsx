@@ -185,8 +185,8 @@ export function CommentItem({
     }
   }
   
-  // Determine indent based on depth
-  const indentClass = depth > 0 ? `ml-${Math.min(depth * 4, 12)}` : ''
+  // Determine indent based on depth - use a fixed indentation for better readability
+  const indentClass = depth > 0 ? 'ml-4' : ''
   
   // Display deleted comment placeholder
   if (comment.isDeleted) {
@@ -328,7 +328,7 @@ export function CommentItem({
       
       {/* Nested replies */}
       {isExpanded && comment.replies && comment.replies.length > 0 && (
-        <div className="mt-2 space-y-2 border-l-2 border-muted">
+        <div className="mt-2 space-y-2 border-l-2 border-muted pl-4">
           {comment.replies.map(reply => (
             <CommentItem
               key={reply._id}

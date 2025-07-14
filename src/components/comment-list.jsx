@@ -22,6 +22,8 @@ export function CommentList({ postId }) {
     const fetchComments = async () => {
       try {
         setLoading(true);
+        setError(null);
+
         const response = await fetch(`/api/posts/${postId}/comments`);
 
         if (!response.ok) {
@@ -29,11 +31,22 @@ export function CommentList({ postId }) {
         }
 
         const data = await response.json();
+        console.log("Fetched comments from API:", data);
+        
+        // Log the structure of comments with replies
+        data.forEach(comment => {
+          if (comment.replies && comment.replies.length > 0) {
+            console.log(`Comment ${comment._id} has ${comment.replies.length} replies`);
+            comment.replies.forEach(reply => {
+              console.log(`  Reply ${reply._id} to comment ${comment._id}, parent: ${reply.parent}`);
+            });
+          }
+        });
+        
         setComments(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching comments:", err);
-        setError("Failed to load comments");
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+        setError(error.message || "Failed to fetch comments");
       } finally {
         setLoading(false);
       }
@@ -50,11 +63,15 @@ export function CommentList({ postId }) {
 
     try {
       setSubmitting(true);
+      
+      console.log(`Submitting ${replyingTo ? 'reply' : 'new comment'}, replyingTo: ${replyingTo}`);
 
       const payload = {
         body: newComment.trim(),
         parentId: replyingTo,
       };
+      
+      console.log('Payload:', payload);
 
       const response = await fetch(`/api/posts/${postId}/comments`, {
         method: "POST",
@@ -68,15 +85,21 @@ export function CommentList({ postId }) {
       }
 
       const newCommentData = await response.json();
+      console.log('Received new comment/reply from API:', newCommentData);
 
       // Update the comments state based on whether it's a reply or top-level comment
       if (replyingTo) {
+        console.log(`Adding reply to parent ${replyingTo}`);
         // Add the reply to the appropriate parent comment
         setComments((prevComments) => {
-          return addReplyToComments(prevComments, replyingTo, newCommentData);
+          console.log('Previous comments state:', prevComments);
+          const updatedComments = addReplyToComments(prevComments, replyingTo, newCommentData);
+          console.log('Updated comments with new reply:', updatedComments);
+          return updatedComments;
         });
       } else {
         // Add as a top-level comment
+        console.log('Adding as top-level comment');
         setComments((prevComments) => [...prevComments, newCommentData]);
       }
 

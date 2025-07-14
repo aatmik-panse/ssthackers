@@ -8,7 +8,8 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import User from "@/models/User";
 
 // Function to build a tree of comments
-function buildCommentTree(comments, parentId = null) {
+function buildCommentTree(comments, parentId = null, depth = 0) {
+  console.log(`Building comment tree at depth ${depth}, parentId: ${parentId}, comments count: ${comments.length}`);
   const result = [];
   const childrenMap = {};
 
@@ -27,12 +28,20 @@ function buildCommentTree(comments, parentId = null) {
         typeof comment.parent === "object"
           ? comment.parent.toString()
           : comment.parent.toString();
+      
+      console.log(`Comment ${id} has parent ${parentIdStr}`);
 
       if (!childrenMap[parentIdStr]) {
         childrenMap[parentIdStr] = [];
       }
       childrenMap[parentIdStr].push(comment);
     }
+  });
+
+  // Log the childrenMap structure
+  console.log('ChildrenMap structure:');
+  Object.keys(childrenMap).forEach(key => {
+    console.log(`Parent ${key} has ${childrenMap[key].length} children`);
   });
 
   // Second pass: find top-level comments and build tree recursively
@@ -61,11 +70,15 @@ function buildCommentTree(comments, parentId = null) {
 
       // Add replies to this comment
       const childComments = childrenMap[comment._id.toString()] || [];
+      console.log(`Comment ${comment._id.toString()} has ${childComments.length} child comments`);
+      
       if (childComments.length > 0) {
         commentObj.replies = buildCommentTree(
           childComments,
-          comment._id.toString()
+          comment._id.toString(),
+          depth + 1
         );
+        console.log(`Added ${commentObj.replies.length} replies to comment ${comment._id.toString()}`);
       } else {
         commentObj.replies = [];
       }
@@ -74,6 +87,7 @@ function buildCommentTree(comments, parentId = null) {
     }
   });
 
+  console.log(`Returning ${result.length} comments at depth ${depth}`);
   return result;
 }
 
@@ -195,17 +209,22 @@ export async function POST(request, { params }) {
 
     // If this is a reply, set parent and fetch its depth
     if (parentId) {
+      console.log(`Creating a reply to parent comment: ${parentId}`);
       const parentComment = await Comment.findById(parentId);
       if (!parentComment) {
+        console.error(`Parent comment not found: ${parentId}`);
         return NextResponse.json(
           { error: "Parent comment not found" },
           { status: 404 }
         );
       }
-
+      
+      console.log(`Found parent comment: ${parentComment._id}, depth: ${parentComment.depth}`);
       commentData.parent = parentId;
       commentData.depth = parentComment.depth + 1;
+      console.log(`Setting reply depth to: ${commentData.depth}`);
     } else {
+      console.log('Creating a top-level comment');
       commentData.depth = 0;
     }
 
@@ -228,10 +247,18 @@ export async function POST(request, { params }) {
     // Ensure parent is a string if it exists
     if (commentObj.parent) {
       commentObj.parent = commentObj.parent.toString();
+      console.log(`Converted parent ID to string: ${commentObj.parent}`);
     }
     
     // Initialize empty replies array
     commentObj.replies = [];
+    
+    console.log('Returning new comment/reply:', JSON.stringify({
+      _id: commentObj._id,
+      parent: commentObj.parent,
+      depth: commentObj.depth,
+      replies: commentObj.replies
+    }));
 
     return NextResponse.json(commentObj, { status: 201 });
   } catch (error) {

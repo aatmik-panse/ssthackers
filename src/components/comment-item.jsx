@@ -327,21 +327,32 @@ export function CommentItem({
       </div>
       
       {/* Nested replies */}
-      {isExpanded && comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
-        <div className="mt-2 space-y-2 border-l-2 border-muted pl-4">
-          {comment.replies.map(reply => (
-            <CommentItem
-              key={reply._id}
-              comment={reply}
-              depth={depth + 1}
-              postId={postId}
-              onReply={onReply}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
-      )}
+      {(() => {
+        // Debug logging for nested replies
+        console.log(`Rendering comment ${comment._id}, depth: ${depth}, has replies:`, comment.replies);
+        if (comment.replies && Array.isArray(comment.replies)) {
+          console.log(`Comment ${comment._id} has ${comment.replies.length} replies to render`);
+        }
+        
+        return isExpanded && comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
+          <div className="mt-2 space-y-2 border-l-2 border-muted pl-4">
+            {comment.replies.map(reply => {
+              console.log(`Rendering reply ${reply._id} to comment ${comment._id}, depth: ${depth + 1}`);
+              return (
+                <CommentItem
+                  key={reply._id}
+                  comment={reply}
+                  depth={depth + 1}
+                  postId={postId}
+                  onReply={onReply}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              );
+            })}
+          </div>
+        );
+      })()}
       
       {isReplying && (
         <Card className="p-3 mt-2 ml-10">
